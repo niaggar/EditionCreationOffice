@@ -22,11 +22,6 @@ namespace PruebaControlOpenXML
         A4,
         A5,
         A6,
-        Letter,
-        Legal,
-        Executive,
-        Ledger,
-        Tabloid,
         Custom,
     }
     
@@ -39,18 +34,30 @@ namespace PruebaControlOpenXML
             return document;
         }
 
+        
+        #region Crear secciones
         public Paragraph CreateNewSection()
         {
             var paragraphSectionBreak = new Paragraph();
             var paragraphSectionBreakProperties = new ParagraphProperties();
             var SectionBreakProperties = new SectionProperties(new SectionType() { Val = SectionMarkValues.NextPage });
-            
+
             paragraphSectionBreakProperties.Append(SectionBreakProperties);
             paragraphSectionBreak.Append(paragraphSectionBreakProperties);
 
             return paragraphSectionBreak;
         }
 
+        public SectionProperties CreateFinalSection()
+        {
+            var SectionBreakProperties = new SectionProperties(new SectionType() { Val = SectionMarkValues.Continuous });
+
+            return SectionBreakProperties;
+        }
+        #endregion
+
+
+        #region Crear footer y header
         public Header CreateHeaderForSection(string pretitle, string title)
         {
             Header header = new Header();
@@ -100,7 +107,7 @@ namespace PruebaControlOpenXML
                 new Paragraph(
                     new ParagraphProperties(
                         new Justification() { Val = JustificationValues.Left },
-                        new SpacingBetweenLines() { Before = "0", After = "0" },
+                        new SpacingBetweenLines() { Before = "0", After = "22" },
                         new Languages() { Val = "es-ES" }
                     ),
                     new Run(
@@ -113,7 +120,7 @@ namespace PruebaControlOpenXML
                 new Paragraph(
                     new ParagraphProperties(
                         new Justification() { Val = JustificationValues.Left },
-                        new SpacingBetweenLines() { Before = "0", After = "0" },
+                        new SpacingBetweenLines() { Before = "0", After = "22" },
                         new Languages() { Val = "es-ES" }
                     ),
                     new Run(
@@ -126,7 +133,7 @@ namespace PruebaControlOpenXML
                 new Paragraph(
                     new ParagraphProperties(
                         new Justification() { Val = JustificationValues.Left },
-                        new SpacingBetweenLines() { Before = "0", After = "0" },
+                        new SpacingBetweenLines() { Before = "0", After = "22" },
                         new Languages() { Val = "es-ES" }
                     ),
                     new Run(
@@ -147,7 +154,75 @@ namespace PruebaControlOpenXML
 
             return header;
         }
-         
+
+        public Footer CreateFooterForSection(string footerText)
+        {
+            Footer footer = new Footer();
+
+            #region NameSpaces
+            footer.AddNamespaceDeclaration("wpc", "http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas");
+            footer.AddNamespaceDeclaration("mc", "http://schemas.openxmlformats.org/markup-compatibility/2006");
+            footer.AddNamespaceDeclaration("o", "urn:schemas-microsoft-com:office:office");
+            footer.AddNamespaceDeclaration("r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
+            footer.AddNamespaceDeclaration("m", "http://schemas.openxmlformats.org/officeDocument/2006/math");
+            footer.AddNamespaceDeclaration("v", "urn:schemas-microsoft-com:vml");
+            footer.AddNamespaceDeclaration("wp14", "http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing");
+            footer.AddNamespaceDeclaration("wp", "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing");
+            footer.AddNamespaceDeclaration("w10", "urn:schemas-microsoft-com:office:word");
+            footer.AddNamespaceDeclaration("w", "http://schemas.openxmlformats.org/wordprocessingml/2006/main");
+            footer.AddNamespaceDeclaration("w14", "http://schemas.microsoft.com/office/word/2010/wordml");
+            footer.AddNamespaceDeclaration("wpg", "http://schemas.microsoft.com/office/word/2010/wordprocessingGroup");
+            footer.AddNamespaceDeclaration("wpi", "http://schemas.microsoft.com/office/word/2010/wordprocessingInk");
+            footer.AddNamespaceDeclaration("wne", "http://schemas.microsoft.com/office/word/2006/wordml");
+            footer.AddNamespaceDeclaration("wps", "http://schemas.microsoft.com/office/word/2010/wordprocessingShape");
+            #endregion
+
+            Table footerTable = new Table(new TableProperties(
+                new TableWidth() { Width = "5000", Type = TableWidthUnitValues.Pct },
+                new TableBorders(
+                    new TopBorder() { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 10 },
+
+                    new BottomBorder() { Val = new EnumValue<BorderValues>(BorderValues.None), Size = 0 },
+                    new LeftBorder() { Val = new EnumValue<BorderValues>(BorderValues.None), Size = 0 },
+                    new RightBorder() { Val = new EnumValue<BorderValues>(BorderValues.None), Size = 0 },
+                    new InsideVerticalBorder() { Val = new EnumValue<BorderValues>(BorderValues.None), Size = 0 },
+                    new InsideHorizontalBorder() { Val = new EnumValue<BorderValues>(BorderValues.None), Size = 0 }
+                ),
+                new TableCellMarginDefault(
+                    new TopMargin() { Width = "0", Type = TableWidthUnitValues.Dxa },
+                    new StartMargin() { Width = "0", Type = TableWidthUnitValues.Dxa },
+                    new BottomMargin() { Width = "0", Type = TableWidthUnitValues.Dxa },
+                    new EndMargin() { Width = "0", Type = TableWidthUnitValues.Dxa }
+                )
+            ));
+
+            TableRow footerRow1 = new TableRow();
+            TableCell footerCell11 = new TableCell(
+                new Paragraph(
+                    new ParagraphProperties(
+                        new Justification() { Val = JustificationValues.Right },
+                        new SpacingBetweenLines() { Before = "0", After = "22" },
+                        new Languages() { Val = "es-ES" }
+                    ),
+                    new Run(
+                        new RunProperties(new FontSize() { Val = "22" }, new RunFonts() { Ascii = "Arial", HighAnsi = "Arial", ComplexScript = "Arial" }),
+                        new Text(footerText)
+                    )
+                )
+            );
+
+            footerRow1.Append(footerCell11);
+            footerTable.Append(footerRow1);
+            footer.Append(footerTable);
+
+            return footer;
+        }
+        #endregion
+
+
+
+
+
         public Paragraph CrearNuevoParrafo(string texto, ParagraphTypes paragraphType)
         {
             var paragraph = new Paragraph();
@@ -224,42 +299,46 @@ namespace PruebaControlOpenXML
 
         public void AgregarEstilosDeParrafo(ParagraphTypes paragraphType, ref StyleRunProperties runStyle, ref ParagraphProperties paragraphStyle)
         {
-            runStyle.AppendChild(new RunFonts() { Ascii = "Arial" });
-            paragraphStyle.AppendChild(new SpacingBetweenLines() { Line = "240", LineRule = LineSpacingRuleValues.Auto, Before = "0", After = "0" });
+            runStyle.AppendChild(new RunFonts() { Ascii = "Arial", HighAnsi = "Arial", ComplexScript = "Arial" });
 
             switch (paragraphType)
             {
                 case ParagraphTypes.Normal:
                     paragraphStyle.AppendChild(new Justification() { Val = JustificationValues.Both });
+                    paragraphStyle.AppendChild(new SpacingBetweenLines() { LineRule = LineSpacingRuleValues.Auto, Before = "120", After = "120" });
 
-                    runStyle.AppendChild(new FontSize() { Val = "22" });
+                    runStyle.AppendChild(new FontSize() { Val = "24" });
                     runStyle.AppendChild(new Color() { Val = "#000000" });
                     break;
 
                 case ParagraphTypes.Heading1:
                     paragraphStyle.AppendChild(new Justification() { Val = JustificationValues.Center });
+                    paragraphStyle.AppendChild(new SpacingBetweenLines() { LineRule = LineSpacingRuleValues.Auto, Before = "120", After = "120" });
 
                     runStyle.AppendChild(new Bold());
                     runStyle.AppendChild(new FontSize() { Val = "24" });
-                    runStyle.AppendChild(new Color() { Val = "#FF0000" });
+                    runStyle.AppendChild(new Color() { Val = "#000000" });
                     break;
 
                 case ParagraphTypes.Heading2:
                     paragraphStyle.AppendChild(new Justification() { Val = JustificationValues.Left });
+                    paragraphStyle.AppendChild(new SpacingBetweenLines() { LineRule = LineSpacingRuleValues.Auto, Before = "120", After = "120" });
 
                     runStyle.AppendChild(new Bold());
+                    runStyle.AppendChild(new Italic());
                     runStyle.AppendChild(new FontSize() { Val = "24" });
-                    runStyle.AppendChild(new Color() { Val = "#FF0000" });
+                    runStyle.AppendChild(new Color() { Val = "#000000" });
                     break;
 
                 case ParagraphTypes.Table:
                     paragraphStyle.AppendChild(new Justification() { Val = JustificationValues.Both });
+                    paragraphStyle.AppendChild(new SpacingBetweenLines() { LineRule = LineSpacingRuleValues.Auto, Before = "0", After = "0" });
 
                     runStyle.AppendChild(new FontSize() { Val = "22" });
                     runStyle.AppendChild(new Color() { Val = "#000000" });
                     break;
             }
-
+            
             #region propiedades
             //Bold bold1 = new Bold();
             //Italic italic1 = new Italic();

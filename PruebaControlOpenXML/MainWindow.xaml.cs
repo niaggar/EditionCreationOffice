@@ -29,7 +29,8 @@ namespace PruebaControlOpenXML
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            using (var fileDocument = WordprocessingDocument.Create(@"C:\Users\Asus\OneDrive\Desktop\PruebasOffice\TestOpenXML.docx", WordprocessingDocumentType.Document))
+            //using (var fileDocument = WordprocessingDocument.Create(@"C:\Users\Asus\OneDrive\Desktop\PruebasOffice\TestOpenXML.docx", WordprocessingDocumentType.Document))
+            using (var fileDocument = WordprocessingDocument.Create(@"C:\Users\nicho\Downloads\officeTest\TestOpenXML.docx", WordprocessingDocumentType.Document))
             {
                 var mainpart = fileDocument.AddMainDocumentPart();
                 var doc = mainpart.Document = new Document();
@@ -66,74 +67,89 @@ namespace PruebaControlOpenXML
                 doc.AddNamespaceDeclaration("w16cid", "http://schemas.microsoft.com/office/word/2016/wordml/cid");
                 #endregion
 
+
+
                 var body = doc.AppendChild(new Body());
                 var control = new CreateTable();
 
+                
+                
+                #region Crear Header Global
+                var golbalHeaderPart = mainpart.AddNewPart<HeaderPart>();
+                var globalHeaderPartId = mainpart.GetIdOfPart(golbalHeaderPart);
+
+                var globalHeader = control.CreateHeaderForSection("UPME 01 – 2018", "DISEÑO DE ESTRUCTURAS DE PÓRTICOS 500 kV");
+                globalHeader.Save(golbalHeaderPart);
+                #endregion
+
+                #region Crear Footer Global
+                var globalFooterPart = mainpart.AddNewPart<FooterPart>();
+                var globalFooterPartId = mainpart.GetIdOfPart(globalFooterPart);
+
+                var globalFooter = control.CreateFooterForSection("Archivo: CO-TROC-DSIEB-S-00-D1508(3)");
+                globalFooter.Save(globalFooterPart);
+                #endregion
+
+
+
+
                 var text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at mauris suscipit, bibendum justo vel, tempus quam. Nam vitae faucibus sem. Proin a odio a sapien blandit tristique a a enim. Sed elementum lectus sed est facilisis, a placerat erat consectetur. Morbi vitae molestie elit, eget congue lacus. Ut vitae pellentesque ligula, pellentesque maximus neque. Etiam enim metus, tristique non est sed, finibus venenatis purus. Aliquam maximus leo nec maximus cursus. Suspendisse massa arcu, efficitur feugiat sapien sed, imperdiet laoreet odio. Praesent vehicula vehicula viverra. Proin sollicitudin tellus non sem scelerisque, quis eleifend est rutrum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Proin efficitur consequat nisi, ornare consectetur nisi placerat eu. Suspendisse potenti. Suspendisse posuere hendrerit finibus. Suspendisse condimentum tellus non dapibus consequat.";
 
-                var head1 = control.CrearNuevoParrafo("Titulo", ParagraphTypes.Heading1);
+                var head1 = control.CrearNuevoParrafo("LISTA DE ANEXOS", ParagraphTypes.Heading1);
                 var parr1 = control.CrearNuevoParrafo(text, ParagraphTypes.Normal);
+                var head2 = control.CrearNuevoParrafo("2 CRITERIOS Y ANÁLISIS DE DISEÑO", ParagraphTypes.Heading2);
                 var parr2 = control.CrearNuevoParrafo(text, ParagraphTypes.Normal);
                 var table = control.CrearNuevaTablaWord();
-
-
-
-                #region Crear Header Global
-                var headerPart = mainpart.AddNewPart<HeaderPart>();
-                var headerPartId = mainpart.GetIdOfPart(headerPart);
-
-                var header = control.CreateHeaderForSection("UPME 01 – 2018", "DISEÑO DE ESTRUCTURAS DE PÓRTICOS 500 kV");
-                header.Save(headerPart);
-
-                SectionProperties sectionProperties1 = body.OfType<SectionProperties>().FirstOrDefault();
-                if (sectionProperties1 == null)
-                {
-                    sectionProperties1 = new SectionProperties() { };
-                    body.Append(sectionProperties1);
-                }
-                HeaderReference headerReference1 = new HeaderReference() { Type = HeaderFooterValues.Default, Id = headerPartId };
-
-                sectionProperties1.InsertAt(headerReference1, 0);
-                #endregion
-
-
-                #region Crear nueva seccion
-                var pSection = control.CreateNewSection(); // Crea un nuevo parrafo que inicia una seccion
-                var secProps = pSection.Descendants<SectionProperties>().FirstOrDefault(); // Obtiene las propiedades de dicha seccion
-
-                PageSize pgSz = secProps.Descendants<PageSize>().FirstOrDefault();
-                PageMargin pgMar = secProps.Descendants<PageMargin>().FirstOrDefault();
-
-                if (pgSz == null)
-                {
-                    pgSz = new PageSize();
-                    secProps.InsertAt(pgSz, 0);
-                }
-
-                if (pgMar == null)
-                {
-                    pgMar = new PageMargin();
-                    secProps.InsertAt(pgMar, 0);
-                }
-
-
-                #endregion
-
-
-
-                // Implementar creacion de tablas automatizadas
-
-
-
                 body.AppendChild(head1);
                 body.AppendChild(parr1);
                 body.AppendChild(table);
+                body.AppendChild(head2);
                 body.AppendChild(parr2);
+                
+
+                
+
+                #region Crear nueva seccion
+                var pSection1 = control.CreateNewSection(); // Crea un nuevo parrafo que inicia una seccion
+                var secProps1 = pSection1.Descendants<SectionProperties>().FirstOrDefault(); // Obtiene las propiedades de dicha seccion
+                
+                body.AppendChild(pSection1); // Agrega el parrafo a la seccion
+
+                secProps1.AppendChild(new HeaderReference() { Type = HeaderFooterValues.Default, Id = globalHeaderPartId });
+                secProps1.AppendChild(new FooterReference() { Type = HeaderFooterValues.Default, Id = globalFooterPartId });
+                WordUtils.SetPageSize(secProps1, PageSizeTypes.A4, PageOrientationValues.Landscape);
+                WordUtils.SetMarginSize(secProps1, 1984.248, 1984.248, 1984.248, 1984.248, PageOrientationValues.Landscape);
+                #endregion
+
+
+
+
+                var parr3 = control.CrearNuevoParrafo(text, ParagraphTypes.Normal);
+                var parr4 = control.CrearNuevoParrafo(text, ParagraphTypes.Normal);
+                body.AppendChild(parr3);
+                body.AppendChild(parr4);
+                
+
+
+                
+                #region Crear final seccion
+                var secProps2 = control.CreateFinalSection(); // Crea un nuevo parrafo que inicia una seccion
+
+                body.AppendChild(secProps2); // Agrega el parrafo a la seccion
+
+                secProps2.AppendChild(new HeaderReference() { Type = HeaderFooterValues.Default, Id = globalHeaderPartId });
+                secProps2.AppendChild(new FooterReference() { Type = HeaderFooterValues.Default, Id = globalFooterPartId });
+                WordUtils.SetPageSize(secProps2, PageSizeTypes.A4, PageOrientationValues.Portrait);
+                WordUtils.SetMarginSize(secProps2, 1984.248, 1984.248, 1984.248, 1984.248, PageOrientationValues.Portrait);
+                #endregion
+
+
+
+
+
 
                 mainpart.Document.Save();
             }
-
-            //CreateWordprocessingDocument(@"C:\Users\Asus\OneDrive\Desktop\PruebasOffice\TestOpenXML.docx");
         }
     }
 }
