@@ -111,7 +111,7 @@ namespace PruebaControlOpenXML
                         new Languages() { Val = "es-ES" }
                     ),
                     new Run(
-                        new RunProperties(new FontSize() { Val = "22" }, new RunFonts() { Ascii = "Arial", HighAnsi = "Arial", ComplexScript = "Arial" }),
+                        new RunProperties(new FontSize() { Val = "20" }, new RunFonts() { Ascii = "Arial", HighAnsi = "Arial", ComplexScript = "Arial" }),
                         new Text(pretitle)
                     )
                 )
@@ -124,7 +124,7 @@ namespace PruebaControlOpenXML
                         new Languages() { Val = "es-ES" }
                     ),
                     new Run(
-                        new RunProperties(new FontSize() { Val = "22" }, new Bold(), new RunFonts() { Ascii = "Arial", HighAnsi = "Arial", ComplexScript = "Arial" }),
+                        new RunProperties(new FontSize() { Val = "20" }, new Bold(), new RunFonts() { Ascii = "Arial", HighAnsi = "Arial", ComplexScript = "Arial" }),
                         new Text(title)
                     )
                 )
@@ -137,7 +137,7 @@ namespace PruebaControlOpenXML
                         new Languages() { Val = "es-ES" }
                     ),
                     new Run(
-                        new RunProperties(new FontSize() { Val = "22" }, new Bold(), new RunFonts() { Ascii = "Arial", HighAnsi = "Arial", ComplexScript = "Arial" }),
+                        new RunProperties(new FontSize() { Val = "20" }, new Bold(), new RunFonts() { Ascii = "Arial", HighAnsi = "Arial", ComplexScript = "Arial" }),
                         new Text("Página ") { Space = SpaceProcessingModeValues.Preserve },
                         new SimpleField() { Instruction = "PAGE" },
                         new Text(" de ") { Space = SpaceProcessingModeValues.Preserve },
@@ -205,7 +205,7 @@ namespace PruebaControlOpenXML
                         new Languages() { Val = "es-ES" }
                     ),
                     new Run(
-                        new RunProperties(new FontSize() { Val = "22" }, new RunFonts() { Ascii = "Arial", HighAnsi = "Arial", ComplexScript = "Arial" }),
+                        new RunProperties(new FontSize() { Val = "20" }, new RunFonts() { Ascii = "Arial", HighAnsi = "Arial", ComplexScript = "Arial" }),
                         new Text(footerText)
                     )
                 )
@@ -305,7 +305,7 @@ namespace PruebaControlOpenXML
             {
                 case ParagraphTypes.Normal:
                     paragraphStyle.AppendChild(new Justification() { Val = JustificationValues.Both });
-                    paragraphStyle.AppendChild(new SpacingBetweenLines() { LineRule = LineSpacingRuleValues.Auto, Before = "120", After = "120" });
+                    paragraphStyle.AppendChild(new SpacingBetweenLines() { LineRule = LineSpacingRuleValues.Auto, Before = "160", After = "160" });
 
                     runStyle.AppendChild(new FontSize() { Val = "24" });
                     runStyle.AppendChild(new Color() { Val = "#000000" });
@@ -313,7 +313,7 @@ namespace PruebaControlOpenXML
 
                 case ParagraphTypes.Heading1:
                     paragraphStyle.AppendChild(new Justification() { Val = JustificationValues.Center });
-                    paragraphStyle.AppendChild(new SpacingBetweenLines() { LineRule = LineSpacingRuleValues.Auto, Before = "120", After = "120" });
+                    paragraphStyle.AppendChild(new SpacingBetweenLines() { LineRule = LineSpacingRuleValues.Auto, Before = "160", After = "160" });
 
                     runStyle.AppendChild(new Bold());
                     runStyle.AppendChild(new FontSize() { Val = "24" });
@@ -322,7 +322,7 @@ namespace PruebaControlOpenXML
 
                 case ParagraphTypes.Heading2:
                     paragraphStyle.AppendChild(new Justification() { Val = JustificationValues.Left });
-                    paragraphStyle.AppendChild(new SpacingBetweenLines() { LineRule = LineSpacingRuleValues.Auto, Before = "120", After = "120" });
+                    paragraphStyle.AppendChild(new SpacingBetweenLines() { LineRule = LineSpacingRuleValues.Auto, Before = "160", After = "160" });
 
                     runStyle.AppendChild(new Bold());
                     runStyle.AppendChild(new Italic());

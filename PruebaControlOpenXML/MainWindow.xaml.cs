@@ -29,6 +29,9 @@ namespace PruebaControlOpenXML
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            DateTime originalTime = DateTime.Now;
+            System.Console.WriteLine("Start time: " + originalTime);
+            
             //using (var fileDocument = WordprocessingDocument.Create(@"C:\Users\Asus\OneDrive\Desktop\PruebasOffice\TestOpenXML.docx", WordprocessingDocumentType.Document))
             using (var fileDocument = WordprocessingDocument.Create(@"C:\Users\nicho\Downloads\officeTest\TestOpenXML.docx", WordprocessingDocumentType.Document))
             {
@@ -123,10 +126,13 @@ namespace PruebaControlOpenXML
 
 
 
-
+                var head3 = control.CrearNuevoParrafo("3 CARGAS ACTUANTES SOBRE LOS PÓRTICOS", ParagraphTypes.Heading2);
                 var parr3 = control.CrearNuevoParrafo(text, ParagraphTypes.Normal);
+                var head4 = control.CrearNuevoParrafo("4 COMBINACIONES DE CARGA", ParagraphTypes.Heading2);
                 var parr4 = control.CrearNuevoParrafo(text, ParagraphTypes.Normal);
+                body.AppendChild(head3);
                 body.AppendChild(parr3);
+                body.AppendChild(head4);
                 body.AppendChild(parr4);
                 
 
@@ -150,6 +156,8 @@ namespace PruebaControlOpenXML
 
                 mainpart.Document.Save();
             }
+
+            System.Console.WriteLine("Final time: " + (DateTime.Now - originalTime));
         }
     }
 }
