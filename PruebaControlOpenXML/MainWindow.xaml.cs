@@ -38,50 +38,15 @@ namespace PruebaControlOpenXML
                 var mainpart = fileDocument.AddMainDocumentPart();
                 var doc = mainpart.Document = new Document();
 
-                #region nameSpaces
-                doc.AddNamespaceDeclaration("wpc", "http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas");
-                doc.AddNamespaceDeclaration("cx", "http://schemas.microsoft.com/office/drawing/2014/chartex");
-                doc.AddNamespaceDeclaration("cx1", "http://schemas.microsoft.com/office/drawing/2015/9/8/chartex");
-                doc.AddNamespaceDeclaration("cx2", "http://schemas.microsoft.com/office/drawing/2015/10/21/chartex");
-                doc.AddNamespaceDeclaration("cx4", "http://schemas.microsoft.com/office/drawing/2016/5/10/chartex");
-                doc.AddNamespaceDeclaration("cx5", "http://schemas.microsoft.com/office/drawing/2016/5/11/chartex");
-                doc.AddNamespaceDeclaration("cx6", "http://schemas.microsoft.com/office/drawing/2016/5/12/chartex");
-                doc.AddNamespaceDeclaration("cx7", "http://schemas.microsoft.com/office/drawing/2016/5/13/chartex");
-                doc.AddNamespaceDeclaration("cx8", "http://schemas.microsoft.com/office/drawing/2016/5/14/chartex");
-                doc.AddNamespaceDeclaration("mc", "http://schemas.openxmlformats.org/markup-compatibility/2006");
-                doc.AddNamespaceDeclaration("aink", "http://schemas.microsoft.com/office/drawing/2016/ink");
-                doc.AddNamespaceDeclaration("am3d", "http://schemas.microsoft.com/office/drawing/2017/model3d");
-                doc.AddNamespaceDeclaration("o", "urn:schemas-microsoft-com:office:office");
-                doc.AddNamespaceDeclaration("r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
-                doc.AddNamespaceDeclaration("m", "http://schemas.openxmlformats.org/officeDocument/2006/math");
-                doc.AddNamespaceDeclaration("v", "urn:schemas-microsoft-com:vml");
-                doc.AddNamespaceDeclaration("wp14", "http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing");
-                doc.AddNamespaceDeclaration("wp", "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing");
-                doc.AddNamespaceDeclaration("w10", "urn:schemas-microsoft-com:office:word");
-                doc.AddNamespaceDeclaration("w", "http://schemas.openxmlformats.org/wordprocessingml/2006/main");
-                doc.AddNamespaceDeclaration("w14", "http://schemas.microsoft.com/office/word/2010/wordml");
-                doc.AddNamespaceDeclaration("w15", "http://schemas.microsoft.com/office/word/2012/wordml");
-                doc.AddNamespaceDeclaration("w16se", "http://schemas.microsoft.com/office/word/2015/wordml/symex");
-                doc.AddNamespaceDeclaration("wpg", "http://schemas.microsoft.com/office/word/2010/wordprocessingGroup");
-                doc.AddNamespaceDeclaration("wpi", "http://schemas.microsoft.com/office/word/2010/wordprocessingInk");
-                doc.AddNamespaceDeclaration("wne", "http://schemas.microsoft.com/office/word/2006/wordml");
-                doc.AddNamespaceDeclaration("wps", "http://schemas.microsoft.com/office/word/2010/wordprocessingShape");
-                doc.AddNamespaceDeclaration("Ignorable", "w14 w15 w16se w16cid wp14");
-                doc.AddNamespaceDeclaration("w16cid", "http://schemas.microsoft.com/office/word/2016/wordml/cid");
-                #endregion
-
-
-
                 var body = doc.AppendChild(new Body());
-                var control = new CreateTable();
+                var c = new WordCommands();
 
-                
-                
+                // Se crean header y footer globales, para tener sus identifucadores cuando sean requeridos
                 #region Crear Header Global
                 var golbalHeaderPart = mainpart.AddNewPart<HeaderPart>();
                 var globalHeaderPartId = mainpart.GetIdOfPart(golbalHeaderPart);
 
-                var globalHeader = control.CreateHeaderForSection("UPME 01 – 2018", "DISEÑO DE ESTRUCTURAS DE PÓRTICOS 500 kV");
+                var globalHeader = c.CreateNewHeaderForSection("UPME 01 – 2018", "DISEÑO DE ESTRUCTURAS DE PÓRTICOS 500 kV");
                 globalHeader.Save(golbalHeaderPart);
                 #endregion
 
@@ -89,61 +54,91 @@ namespace PruebaControlOpenXML
                 var globalFooterPart = mainpart.AddNewPart<FooterPart>();
                 var globalFooterPartId = mainpart.GetIdOfPart(globalFooterPart);
 
-                var globalFooter = control.CreateFooterForSection("Archivo: CO-TROC-DSIEB-S-00-D1508(3)");
+                var globalFooter = c.CreateNewFooterForSection("Archivo: CO-TROC-DSIEB-S-00-D1508(3)");
                 globalFooter.Save(globalFooterPart);
                 #endregion
 
 
-
-
-                var text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at mauris suscipit, bibendum justo vel, tempus quam. Nam vitae faucibus sem. Proin a odio a sapien blandit tristique a a enim. Sed elementum lectus sed est facilisis, a placerat erat consectetur. Morbi vitae molestie elit, eget congue lacus. Ut vitae pellentesque ligula, pellentesque maximus neque. Etiam enim metus, tristique non est sed, finibus venenatis purus. Aliquam maximus leo nec maximus cursus. Suspendisse massa arcu, efficitur feugiat sapien sed, imperdiet laoreet odio. Praesent vehicula vehicula viverra. Proin sollicitudin tellus non sem scelerisque, quis eleifend est rutrum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Proin efficitur consequat nisi, ornare consectetur nisi placerat eu. Suspendisse potenti. Suspendisse posuere hendrerit finibus. Suspendisse condimentum tellus non dapibus consequat.";
-
-                var head1 = control.CrearNuevoParrafo("LISTA DE ANEXOS", ParagraphTypes.Heading1);
-                var parr1 = control.CrearNuevoParrafo(text, ParagraphTypes.Normal);
-                var head2 = control.CrearNuevoParrafo("2 CRITERIOS Y ANÁLISIS DE DISEÑO", ParagraphTypes.Heading2);
-                var parr2 = control.CrearNuevoParrafo(text, ParagraphTypes.Normal);
-                var table = control.CrearNuevaTablaWord();
-                body.AppendChild(head1);
-                body.AppendChild(parr1);
-                body.AppendChild(table);
-                body.AppendChild(head2);
-                body.AppendChild(parr2);
-                
+                // Contenido seccion inicial del documento
+                body.AppendChild(c.CreateNewParagraph("1 OBJETO", ParagraphTypes.Heading2));
+                body.AppendChild(c.CreateNewParagraph("Este documento presentar los criterios generales empleados para el análisis y el diseño estructural de los pórticos correspondientes al proyecto Segundo Transformador 500/230/34,5 kV – 360 MVA en la subestación Ocaña 500/230 kV, definido en el “Plan de Expansión de Referencia Generación – Transmisión 2015-2029”. La subestación está localizada en el municipio de Ocaña, departamento de Norte de Santander.", ParagraphTypes.Normal));
+                body.AppendChild(c.CreateNewParagraph("Finalmente se presentan los resultados del análisis, el diseño usando el software SAP 2000 y las verificaciones ante las solicitaciones más críticas generadas por las combinaciones de carga.", ParagraphTypes.Normal));
 
                 
+                body.AppendChild(c.CreateNewParagraph("2 CRITERIOS Y ANÁLISIS DE DISEÑO", ParagraphTypes.Heading2));
+                body.AppendChild(c.CreateNewParagraph("El diseño de las estructuras metálicas se realizó con base a las especificaciones de las guías de diseño, distancias eléctricas y cargas de conexión, presentadas en los documentos de referencia [1] y [9] y en lo indicado en la referencia [2], considerando las relaciones de esbeltez y los espesores mínimos de los elementos.", ParagraphTypes.Normal));
 
-                #region Crear nueva seccion
-                var pSection1 = control.CreateNewSection(); // Crea un nuevo parrafo que inicia una seccion
+                
+                body.AppendChild(c.CreateNewParagraph("3 MATERIALES", ParagraphTypes.Heading2));
+                body.AppendChild(c.CreateNewParagraph("Se definen en la Tabla 1, con base en lo indicado en la referencia [3]", ParagraphTypes.Normal));
+                
+                body.AppendChild(c.CreateNewParagraph("Tabla 1 Materiales de los pórticos", ParagraphTypes.Heading1));
+                body.AppendChild(c.CreateNewTable(DatosPruebaV1(), haveBorder: true));
+
+                
+                body.AppendChild(c.CreateNewParagraph("4 CARGAS ACTUANTES SOBRE LOS PÓRTICOS", ParagraphTypes.Heading2));
+                body.AppendChild(c.CreateNewParagraph("Este documento presentar los criterios generales empleados para el análisis y el diseño estructural de los pórticos correspondientes al proyecto Segundo Transformador 500/230/34,5 kV – 360 MVA en la subestación Ocaña 500/230 kV, definido en el “Plan de Expansión de Referencia Generación – Transmisión 2015-2029”. La subestación está localizada en el municipio de Ocaña, departamento de Norte de Santander.", ParagraphTypes.Normal));
+                body.AppendChild(c.CreateNewParagraph("Finalmente se presentan los resultados del análisis, el diseño usando el software SAP 2000 y las verificaciones ante las solicitaciones más críticas generadas por las combinaciones de carga.", ParagraphTypes.Normal));
+
+                
+                body.AppendChild(c.CreateNewParagraph("5 COMBINACIONES DE CARGA", ParagraphTypes.Heading2));
+                body.AppendChild(c.CreateNewParagraph("Este documento presentar los criterios generales empleados para el análisis y el diseño estructural de los pórticos correspondientes al proyecto Segundo Transformador 500/230/34,5 kV – 360 MVA en la subestación Ocaña 500/230 kV, definido en el “Plan de Expansión de Referencia Generación – Transmisión 2015-2029”. La subestación está localizada en el municipio de Ocaña, departamento de Norte de Santander.", ParagraphTypes.Normal));
+                body.AppendChild(c.CreateNewTable(DatosPruebaV2(), haveBorder: false));
+                body.AppendChild(c.CreateNewParagraph("Combinaciones de cargas de servicio (S##):", ParagraphTypes.Normal));
+                body.AppendChild(c.CreateNewTable(DatosPruebaV2(), haveBorder: false));
+
+                
+                body.AppendChild(c.CreateNewParagraph("6 CRITERIOS DE DEFLEXIÓN", ParagraphTypes.Heading2));
+                body.AppendChild(c.CreateNewParagraph("Las deflexiones de los pórticos se limitaran a los valores indicados en las referencias [3] y [4], con base en lo establecido en la referencia [6]", ParagraphTypes.Normal));
+                
+                body.AppendChild(c.CreateNewParagraph("Tabla 2 Deflexiones Admisibles", ParagraphTypes.Heading1));
+                body.AppendChild(c.CreateNewTable(DatosPruebaV3(), haveBorder: true));
+                body.AppendChild(c.CreateNewParagraph("", ParagraphTypes.Table));
+                body.AppendChild(c.CreateNewTable(DatosPruebaV4(), haveBorder: true));
+
+                // Asignando propiedades a la seccion inicial
+                #region Crear seccion inicial
+                var pSection1 = c.CreateNewSection(); // Crea un nuevo parrafo que inicia una seccion
                 var secProps1 = pSection1.Descendants<SectionProperties>().FirstOrDefault(); // Obtiene las propiedades de dicha seccion
-                
+
                 body.AppendChild(pSection1); // Agrega el parrafo a la seccion
 
                 secProps1.AppendChild(new HeaderReference() { Type = HeaderFooterValues.Default, Id = globalHeaderPartId });
                 secProps1.AppendChild(new FooterReference() { Type = HeaderFooterValues.Default, Id = globalFooterPartId });
-                WordUtils.SetPageSize(secProps1, PageSizeTypes.A4, PageOrientationValues.Landscape);
-                WordUtils.SetMarginSize(secProps1, 1984.248, 1984.248, 1984.248, 1984.248, PageOrientationValues.Landscape);
+                WordUtils.SetPageSize(secProps1, PageSizeTypes.A4, PageOrientationValues.Portrait);
+                WordUtils.SetMarginSize(secProps1, 1984.248, 1984.248, 1984.248, 1984.248, PageOrientationValues.Portrait);
                 #endregion
 
 
 
-                var head3 = control.CrearNuevoParrafo("3 CARGAS ACTUANTES SOBRE LOS PÓRTICOS", ParagraphTypes.Heading2);
-                var parr3 = control.CrearNuevoParrafo(text, ParagraphTypes.Normal);
-                var head4 = control.CrearNuevoParrafo("4 COMBINACIONES DE CARGA", ParagraphTypes.Heading2);
-                var parr4 = control.CrearNuevoParrafo(text, ParagraphTypes.Normal);
-                body.AppendChild(head3);
-                body.AppendChild(parr3);
-                body.AppendChild(head4);
-                body.AppendChild(parr4);
-                
+
+                // Creando pagina de titulo para anexos
+                c.CreateNewSectionDivider(ref mainpart, "ANEXO 2: CÁLCULO ESTRUCTURAL COLUMNAS C7 TORRECILLAS SOBRE MURO CORTAFUEGO.", (1984.248, 1984.248, 1984.248, 1984.248));
+
+                // Contenido de la seccion de anexos
+                body.AppendChild(c.CreateNewParagraph("6 CRITERIOS DE DEFLEXIÓN", ParagraphTypes.Heading2));
+                body.AppendChild(c.CreateNewParagraph("Las deflexiones de los pórticos se limitaran a los valores indicados en las referencias [3] y [4], con base en lo establecido en la referencia [6]", ParagraphTypes.Normal));
+
+                body.AppendChild(c.CreateNewParagraph("Tabla 2 Deflexiones Admisibles", ParagraphTypes.Heading1));
+                body.AppendChild(c.CreateNewTable(DatosPruebaV3(), haveBorder: true));
+                body.AppendChild(c.CreateNewParagraph("", ParagraphTypes.Table));
+                body.AppendChild(c.CreateNewTable(DatosPruebaV4(), haveBorder: true));
 
 
-                
+                #region Crear Header seccion anexos
+                var anexoHeaderPart = mainpart.AddNewPart<HeaderPart>();
+                var anexoHeaderPartId = mainpart.GetIdOfPart(anexoHeaderPart);
+
+                var anexoHeader = c.CreateNewHeaderForSection("UPME 01 – 2018", "ANEXO 2");
+                anexoHeader.Save(anexoHeaderPart);
+                #endregion
+
+                // Asignando propiedades a la seccion final (en este caso la de anexos)
                 #region Crear final seccion
-                var secProps2 = control.CreateFinalSection(); // Crea un nuevo parrafo que inicia una seccion
+                var secProps2 = c.CreateFinalSection();
+                body.AppendChild(secProps2);
 
-                body.AppendChild(secProps2); // Agrega el parrafo a la seccion
-
-                secProps2.AppendChild(new HeaderReference() { Type = HeaderFooterValues.Default, Id = globalHeaderPartId });
+                secProps2.AppendChild(new HeaderReference() { Type = HeaderFooterValues.Default, Id = anexoHeaderPartId });
                 secProps2.AppendChild(new FooterReference() { Type = HeaderFooterValues.Default, Id = globalFooterPartId });
                 WordUtils.SetPageSize(secProps2, PageSizeTypes.A4, PageOrientationValues.Portrait);
                 WordUtils.SetMarginSize(secProps2, 1984.248, 1984.248, 1984.248, 1984.248, PageOrientationValues.Portrait);
@@ -151,13 +146,162 @@ namespace PruebaControlOpenXML
 
 
 
+                //////
+                ///
+                /// Nota:
+                /// Definir una seccion se realiza despues de haber agregado dentro del -body- el contenido que le corresponde a dicha seccion.
+                /// 
+                //////
 
-
-
-                mainpart.Document.Save();
+                
+                mainpart.Document.Save(); // El guardado es opcional, por defecto OpenXML realiza autoguardado de cada cambio realizado
             }
 
             System.Console.WriteLine("Final time: " + (DateTime.Now - originalTime));
         }
+
+        #region Generar datos de prueba
+        public List<string[]> DatosPruebaV1()
+        {
+            var datos = new List<string[]>();
+
+            datos.Add(new string[3]
+            {
+                "Elemento", "Perfiles¬", "ASTM A-572 Gr50¬"
+            });
+            datos.Add(new string[3]
+            {
+                "|", "Platinas¬", "ASTM A-36¬"
+            });
+            datos.Add(new string[3]
+            {
+                "|", "Soldadura¬", "De acuerdo AWS D1.1 y D1.3.\r\nElectrodos E70-XX¬"
+            });
+            datos.Add(new string[3]
+            {
+                "|", "Tornillos¬", "ASTM A-394 TIPO 0¬"
+            });
+            datos.Add(new string[3]
+            {
+                "|", "Pernos de anclaje¬", "F1554 Gr 55¬"
+            });
+            datos.Add(new string[3]
+            {
+                "|", "Arandelas¬", "ASTM F-436¬"
+            });
+            datos.Add(new string[3]
+            {
+                "|", "Tuercas¬", "ASTM A-563¬"
+            });
+            datos.Add(new string[3]
+            {
+                "|", "Galvanización¬", "ASTM A-123¬"
+            });
+
+
+            return datos;
+        }
+
+        public List<string[]> DatosPruebaV2()
+        {
+            var datos = new List<string[]>();
+
+            datos.Add(new string[2]
+            {
+                "U1.0¬", "1,2PP + 1,3CT + 1,0CMM¬"
+            });
+            datos.Add(new string[2]
+            {
+                "U2.0¬", "1,1PP +1,38Vx + 1,38CTv + 0,75CC + 1,1CT¬"
+            });
+            datos.Add(new string[2]
+            {
+                "U2.1¬", "1,1PP + 1,38Vy + 1,38CTv + 0,75CC + 1,1CT¬"
+            });
+            datos.Add(new string[2]
+            {
+                "U4.0¬", "1,1PP + 1,0CC + 1,1CT¬"
+            });
+            datos.Add(new string[2]
+            {
+                "U5.0¬", "1,1PP + 1,0Ex + 0,3Ey - 1,0Ez + 0,75CC + 1,1CT¬"
+            });
+            datos.Add(new string[2]
+            {
+                "U5.1¬", "1,1PP - 1,0Ex + 0,3Ey - 1,0Ez + 0,75CC + 1,1CT¬"
+            });
+            datos.Add(new string[2]
+            {
+                "U1.0¬", "1,2PP + 1,3CT + 1,0CMM¬"
+            });
+            datos.Add(new string[2]
+            {
+                "U2.0¬", "1,1PP +1,38Vx + 1,38CTv + 0,75CC + 1,1CT¬"
+            });
+            datos.Add(new string[2]
+            {
+                "U2.1¬", "1,1PP + 1,38Vy + 1,38CTv + 0,75CC + 1,1CT¬"
+            });
+            datos.Add(new string[2]
+            {
+                "U4.0¬", "1,1PP + 1,0CC + 1,1CT¬"
+            });
+            datos.Add(new string[2]
+            {
+                "U5.0¬", "1,1PP + 1,0Ex + 0,3Ey - 1,0Ez + 0,75CC + 1,1CT¬"
+            });
+            datos.Add(new string[2]
+            {
+                "U5.1¬", "1,1PP - 1,0Ex + 0,3Ey - 1,0Ez + 0,75CC + 1,1CT¬"
+            });
+
+
+            return datos;
+        }
+
+        public List<string[]> DatosPruebaV3()
+        {
+            var datos = new List<string[]>();
+
+            datos.Add(new string[5]
+            {
+                "TIPO DE DEFLEXIÓN[N]", "ESTRUCTURA CLASE A[N]", "~", "ESTRUCTURA CLASE B[N]", "~"
+            });
+            datos.Add(new string[5]
+            {
+                "|", "Elementos Horizontales", "Elementos Verticales", "Elementos Horizontales", "Elementos Verticales"
+            });
+            datos.Add(new string[5]
+            {
+                "Horizontal", "1/200", "1/100", "1/100", "1/100"
+            });
+            datos.Add(new string[5]
+            {
+                "Vertical", "1/200", "", "1/200", ""
+            });
+
+            return datos;
+        }
+
+        public List<string[]> DatosPruebaV4()
+        {
+            var datos = new List<string[]>();
+
+            datos.Add(new string[2]
+            {
+                "Clasificación de los miembros, según ASCE - 113[N]", "~"
+            });
+            datos.Add(new string[2]
+            {
+                "Clase A", "Cuando existan equipos sobre los pórticos."
+            });
+            datos.Add(new string[2]
+            {
+                "Clase B", "Cuando no existen equipos sobre los pórticos."
+            });
+
+            return datos;
+        }
+        #endregion
     }
 }

@@ -60,7 +60,7 @@ namespace PruebaControlOpenXML
             }
         }
 
-        public static void SetMarginSize(SectionProperties secProps, double top, double bottom, double left, double right, PageOrientationValues pageOrientation = PageOrientationValues.Portrait)
+        public static void SetMarginSize(SectionProperties secProps, double top, double right, double bottom, double left, PageOrientationValues pageOrientation = PageOrientationValues.Portrait)
         {
             var pgMar = secProps.Descendants<PageMargin>().FirstOrDefault();
             if (pgMar == null)

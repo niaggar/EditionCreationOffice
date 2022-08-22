@@ -25,7 +25,7 @@ namespace PruebaControlOpenXML
         Custom,
     }
     
-    public class CreateTable
+    public class WordCommands
     {
         public WordprocessingDocument CrearNuevoDocumento(string route)
         {
@@ -36,6 +36,29 @@ namespace PruebaControlOpenXML
 
         
         #region Crear secciones
+        public void CreateNewSectionDivider(ref MainDocumentPart mainpart, string title, (double, double, double, double) mar, string headerId = "", string footerId = "", PageSizeTypes paSize = PageSizeTypes.A4)
+        {
+            var res = CreateNewParagraph(title, ParagraphTypes.Heading1);
+            mainpart.Document.Body.AppendChild(res);
+
+            var p = CreateNewSection();
+            var secProps1 = p.Descendants<SectionProperties>().FirstOrDefault();
+            mainpart.Document.Body.AppendChild(p);
+
+
+            var blanckHeader = mainpart.AddNewPart<HeaderPart>();
+            var blanckHeaderPartId = mainpart.GetIdOfPart(blanckHeader);
+            new Header().Save(blanckHeader);
+
+
+            secProps1.AppendChild(new HeaderReference() { Type = HeaderFooterValues.Default, Id = headerId == "" ? blanckHeaderPartId : headerId });
+            secProps1.AppendChild(new FooterReference() { Type = HeaderFooterValues.Default, Id = footerId });
+            secProps1.AppendChild(new VerticalTextAlignmentOnPage() { Val = VerticalJustificationValues.Center });
+            
+            WordUtils.SetPageSize(secProps1, paSize, PageOrientationValues.Portrait);
+            WordUtils.SetMarginSize(secProps1, mar.Item1, mar.Item2, mar.Item3, mar.Item4, PageOrientationValues.Portrait);
+        }
+
         public Paragraph CreateNewSection()
         {
             var paragraphSectionBreak = new Paragraph();
@@ -50,7 +73,7 @@ namespace PruebaControlOpenXML
 
         public SectionProperties CreateFinalSection()
         {
-            var SectionBreakProperties = new SectionProperties(new SectionType() { Val = SectionMarkValues.Continuous });
+            var SectionBreakProperties = new SectionProperties(new SectionType() { Val = SectionMarkValues.NextPage });
 
             return SectionBreakProperties;
         }
@@ -58,7 +81,7 @@ namespace PruebaControlOpenXML
 
 
         #region Crear footer y header
-        public Header CreateHeaderForSection(string pretitle, string title)
+        public Header CreateNewHeaderForSection(string pretitle, string title)
         {
             Header header = new Header();
 
@@ -132,7 +155,7 @@ namespace PruebaControlOpenXML
             TableCell headerCell22 = new TableCell(
                 new Paragraph(
                     new ParagraphProperties(
-                        new Justification() { Val = JustificationValues.Left },
+                        new Justification() { Val = JustificationValues.Right },
                         new SpacingBetweenLines() { Before = "0", After = "22" },
                         new Languages() { Val = "es-ES" }
                     ),
@@ -155,7 +178,7 @@ namespace PruebaControlOpenXML
             return header;
         }
 
-        public Footer CreateFooterForSection(string footerText)
+        public Footer CreateNewFooterForSection(string footerText)
         {
             Footer footer = new Footer();
 
@@ -220,17 +243,189 @@ namespace PruebaControlOpenXML
         #endregion
 
 
+        #region Crear tablas
+        public Table CreateNewTable(List<string[]> datosTabla, bool haveBorder = true)
+        {
+            Table table = new Table(new TableProperties(
+                new TableWidth() { Width = "5000", Type = TableWidthUnitValues.Pct },
+                new TableBorders(
+                    new TopBorder()
+                    {
+                        Val = haveBorder ? BorderValues.Single : BorderValues.None,
+                        Size = haveBorder ? (UInt32Value)10 : 0,
+                    },
+                    new BottomBorder()
+                    {
+                        Val = haveBorder ? BorderValues.Single : BorderValues.None,
+                        Size = haveBorder ? (UInt32Value)10 : 0,
+                    },
+                    new LeftBorder()
+                    {
+                        Val = haveBorder ? BorderValues.Single : BorderValues.None,
+                        Size = haveBorder ? (UInt32Value)10 : 0,
+                    },
+                    new RightBorder()
+                    {
+                        Val = haveBorder ? BorderValues.Single : BorderValues.None,
+                        Size = haveBorder ? (UInt32Value)10 : 0,
+                    },
+                    new InsideHorizontalBorder()
+                    {
+                        Val = haveBorder ? BorderValues.Single : BorderValues.None,
+                        Size = haveBorder ? (UInt32Value)10 : 0,
+                    },
+                    new InsideVerticalBorder()
+                    {
+                        Val = haveBorder ? BorderValues.Single : BorderValues.None,
+                        Size = haveBorder ? (UInt32Value)10 : 0,
+                    }
+                ),
+                new TableCellMarginDefault(
+                    new TopMargin() { Width = "0", Type = TableWidthUnitValues.Dxa },
+                    new StartMargin() { Width = "0", Type = TableWidthUnitValues.Dxa },
+                    new BottomMargin() { Width = "0", Type = TableWidthUnitValues.Dxa },
+                    new EndMargin() { Width = "0", Type = TableWidthUnitValues.Dxa }
+                )
+            ));
+
+            int rowCount = datosTabla.Count;
+            int columnCount = GetColsNumber(datosTabla);
+
+            for (int row = 0; row < rowCount; row++)
+            {
+                TableRow tableRow = new TableRow();
+
+                for (int col = 0; col < columnCount; col++)
+                {
+                    var texto = datosTabla[row].Length > col ? datosTabla[row][col] : "";
+
+                    var pProps = new ParagraphProperties(
+                        new SpacingBetweenLines() { Before = "40", After = "40" },
+                        new Indentation() { Left = "40" },
+                        new Languages() { Val = "es-ES" }
+                    );
+                    var rProps = new RunProperties(
+                        new FontSize() { Val = "20" },
+                        new RunFonts() { Ascii = "Arial", HighAnsi = "Arial", ComplexScript = "Arial" }
+                    );
+                    var cProps = new TableCellProperties(
+                        new TableCellVerticalAlignment() { Val = TableVerticalAlignmentValues.Center }
+                    );
 
 
+                    SetCellTextStyles(ref texto, ref rProps, ref pProps);
 
-        public Paragraph CrearNuevoParrafo(string texto, ParagraphTypes paragraphType)
+                    #region Merge celdas
+                    // "~" caracter que indica unir las dos celdas horizontalmente
+                    // "|" caracter que indica unir las dos celdas verticalmente
+
+                    // Validar si la celda es una celda de unir horizontalmente
+                    var cellMerge = texto.Contains("~");
+                    if (cellMerge)
+                    {
+                        texto = texto.Replace("~", "");
+                        cProps.Append(new HorizontalMerge() { Val = MergedCellValues.Continue });
+                    }
+                    else
+                    {
+                        cProps.Append(new HorizontalMerge() { Val = MergedCellValues.Restart });
+                    }
+
+                    // Validar si la celda es una celda de unir verticalmente
+                    var rowMerge = texto.Contains("|");
+                    if (rowMerge)
+                    {
+                        texto = texto.Replace("|", "");
+                        cProps.Append(new VerticalMerge() { Val = MergedCellValues.Continue });
+                    }
+                    else
+                    {
+                        cProps.Append(new VerticalMerge() { Val = MergedCellValues.Restart });
+                    }
+                    #endregion
+
+
+                    TableCell tableCell = new TableCell(
+                        cProps,
+                        new Paragraph(
+                            pProps,
+                            new Run(
+                                rProps,
+                                new Text(texto)
+                            )
+                        )
+                    );
+
+                    tableRow.Append(tableCell);
+                }
+
+                table.Append(tableRow);
+            }
+
+            return table;
+        }
+
+        private static void SetCellTextStyles(ref string texto, ref RunProperties rProps, ref ParagraphProperties pProps)
+        {
+            var bold = texto.Contains("[N]");
+            var italic = texto.Contains("[I]");
+            var underline = texto.Contains("[U]");
+            var jLeft = texto.Contains("¬");
+
+            if (bold)
+            {
+                rProps.AppendChild(new Bold());
+                texto = texto.Replace("[N]", "");
+            }
+
+            if (italic)
+            {
+                rProps.AppendChild(new Italic());
+                texto = texto.Replace("[I]", "");
+            }
+
+            if (underline)
+            {
+                rProps.AppendChild(new Underline() { Val = UnderlineValues.Single });
+                texto = texto.Replace("[U]", "");
+            }
+
+            if (jLeft)
+            {
+                pProps.AppendChild(new Justification() { Val = JustificationValues.Left });
+                texto = texto.Replace("¬", "");
+            }
+            else
+            {
+                pProps.AppendChild(new Justification() { Val = JustificationValues.Center });
+            }
+        }
+
+        private static int GetColsNumber(List<string[]> DatosTabla)
+        {
+            int Col = 0;
+
+            for (int i = 0; i < DatosTabla.Count; i++)
+            {
+                if (Col < DatosTabla[i].Length)
+                {
+                    Col = DatosTabla[i].Length;
+                }
+            }
+            return Col;
+        }
+        #endregion
+
+
+        #region Crear parrafos
+        public Paragraph CreateNewParagraph(string texto, ParagraphTypes paragraphType)
         {
             var paragraph = new Paragraph();
             var run = new Run();
-            
+
             var runStyle = new StyleRunProperties();
             var paragraphStyle = new ParagraphProperties();
-            AgregarEstilosDeParrafo(paragraphType, ref runStyle, ref paragraphStyle);
+            SetParagraphStyles(paragraphType, ref runStyle, ref paragraphStyle);
 
             var p = new Text(texto);
             p.Space = SpaceProcessingModeValues.Preserve;
@@ -243,61 +438,7 @@ namespace PruebaControlOpenXML
             return paragraph;
         }
 
-        public Table CrearNuevaTablaWord()
-        {
-            var table = new Table();
-            var tableProperties = new TableProperties(
-                new TableWidth() { Width = "5000", Type = TableWidthUnitValues.Pct },
-                new TableBorders(
-                    new TopBorder() { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 2 },
-                    new BottomBorder() { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 2 },
-                    new LeftBorder() { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 2 },
-                    new RightBorder() { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 2 },
-                    new InsideHorizontalBorder() { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 2 },
-                    new InsideVerticalBorder() { Val = new EnumValue<BorderValues>(BorderValues.Single), Size = 2 }
-                ),
-                new TableCellMarginDefault(
-                    new TopMargin() { Width = "0", Type = TableWidthUnitValues.Dxa },
-                    new StartMargin() { Width = "0", Type = TableWidthUnitValues.Dxa },
-                    new BottomMargin() { Width = "0", Type = TableWidthUnitValues.Dxa },
-                    new EndMargin() { Width = "0", Type = TableWidthUnitValues.Dxa }
-                )
-            );
-
-            table.AppendChild(tableProperties);
-
-            
-
-            TableRow tr = new TableRow();
-            TableCell cell1 = new TableCell(CrearNuevoParrafo("Hola", ParagraphTypes.Table));
-            TableCell cell2 = new TableCell(CrearNuevoParrafo("Hola", ParagraphTypes.Table));
-            TableCell cell3 = new TableCell(CrearNuevoParrafo("Hola", ParagraphTypes.Table));
-
-            TableCellProperties cellprops1 = new TableCellProperties(new HorizontalMerge() { Val = MergedCellValues.Restart });
-            TableCellProperties cellprops2 = new TableCellProperties(new HorizontalMerge() { Val = MergedCellValues.Continue });
-
-            cell1.Append(cellprops1);
-            cell2.Append(cellprops2);
-
-            tr.Append(cell1, cell2, cell3);
-
-                
-            TableRow tr1 = new TableRow();
-            TableCell cell4 = new TableCell(CrearNuevoParrafo("Hola", ParagraphTypes.Table));
-            TableCell cell5 = new TableCell(CrearNuevoParrafo("Hola", ParagraphTypes.Table));
-            TableCell cell6 = new TableCell(CrearNuevoParrafo("Hola", ParagraphTypes.Table));
-            tr1.Append(cell4, cell5, cell6);
-
-
-            table.AppendChild(tr);
-            table.AppendChild(tr1);
-
-
-            return table;
-        }
-
-
-        public void AgregarEstilosDeParrafo(ParagraphTypes paragraphType, ref StyleRunProperties runStyle, ref ParagraphProperties paragraphStyle)
+        private static void SetParagraphStyles(ParagraphTypes paragraphType, ref StyleRunProperties runStyle, ref ParagraphProperties paragraphStyle)
         {
             runStyle.AppendChild(new RunFonts() { Ascii = "Arial", HighAnsi = "Arial", ComplexScript = "Arial" });
 
@@ -338,16 +479,7 @@ namespace PruebaControlOpenXML
                     runStyle.AppendChild(new Color() { Val = "#000000" });
                     break;
             }
-            
-            #region propiedades
-            //Bold bold1 = new Bold();
-            //Italic italic1 = new Italic();
-            //Underline underline = new Underline();
-
-            //Color color1 = new Color() { Val = "#FF0000" };
-            //RunFonts font1 = new RunFonts() { Ascii = "Lucida Console" };
-            //FontSize fontSize1 = new FontSize() { Val = "24" };
-            #endregion
         }
+        #endregion
     }
 }
