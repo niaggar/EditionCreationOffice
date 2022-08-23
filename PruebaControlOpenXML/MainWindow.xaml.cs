@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.Win32;
 
 namespace PruebaControlOpenXML
 {
@@ -27,19 +28,37 @@ namespace PruebaControlOpenXML
             InitializeComponent();
         }
 
+        public string GetSaveRoute()
+        {
+            var createFile = new SaveFileDialog()
+            {
+                FileName = "TestOpenXML.docx",
+                Filter = "Word Files (*.docx;*.doc)|*.docx;*.doc",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                DefaultExt = "docx"
+            };
+            var res = createFile.ShowDialog();
+            if (res != true) return "";
+
+            return createFile.FileName;
+        }
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+
+            string route = GetSaveRoute();
+            if (route == "") return;
+
+
             DateTime originalTime = DateTime.Now;
             System.Console.WriteLine("Start time: " + originalTime);
 
 
             var documentSize = PageSizeTypes.A4;
             var documentMargins = (1984.248, 1984.248, 1984.248, 1984.248);
-            
-
             var c = new WordCommands();
             
-            var fileDocument = c.CreateDocument(@"C:\Users\Asus\OneDrive\Desktop\PruebasOffice\TestOpenXML.docx");
+            var fileDocument = c.CreateDocument(route);
             if (fileDocument == null)
             {
                 System.Console.WriteLine("End time: " + DateTime.Now);
