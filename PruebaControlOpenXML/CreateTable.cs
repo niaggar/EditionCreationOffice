@@ -190,7 +190,7 @@ namespace PruebaControlOpenXML
                 }
             );
 
-            return new Paragraph(new Run(element));
+            return new Paragraph(new ParagraphProperties(new Justification() { Val = JustificationValues.Center }), new Run(element));
         }
         #endregion
 
@@ -596,6 +596,11 @@ namespace PruebaControlOpenXML
             paragraph.AppendChild(run);
 
             return paragraph;
+        }
+
+        public Paragraph CreateNewPargraphPageBreak()
+        {
+            return new Paragraph(new Run(new Break() { Type = BreakValues.Page }));
         }
 
         private static void SetParagraphStyles(ParagraphTypes paragraphType, ref StyleRunProperties runStyle, ref ParagraphProperties paragraphStyle)

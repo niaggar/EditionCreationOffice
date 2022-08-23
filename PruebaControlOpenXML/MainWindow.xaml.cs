@@ -146,19 +146,22 @@ namespace PruebaControlOpenXML
 
             var pagesizeSec2 = WordUtils.GetPageSize(secProps2);
             var marginsSec2 = WordUtils.GetMarginSize(secProps2);
-            var utilSpaceSec2 = (long)WordUtils.ConvertTwipToCm(pagesizeSec2.width - marginsSec2.left - marginsSec2.right);
+            var widthUtilSpaceSec2 = (long)WordUtils.ConvertTwipToCm(pagesizeSec2.width - marginsSec2.left - marginsSec2.right);
+            var heightUtilSpaceSec2 = (long)WordUtils.ConvertTwipToCm(pagesizeSec2.height - marginsSec2.top - marginsSec2.bottom);
 
             // Contenido de la seccion de anexos
             var r = @"C:\Users\Asus\OneDrive\Desktop\PruebasOffice\img2\";
-            var img1 = c.CreateNewImage(mainpart, r + "Conexion1.jpeg", width: utilSpaceSec2);
-            var img2 = c.CreateNewImage(mainpart, r + "Conexion2.jpeg", width: utilSpaceSec2);
-            var img3 = c.CreateNewImage(mainpart, r + "Diagonal.jpeg", width: utilSpaceSec2);
+            var img1 = c.CreateNewImage(mainpart, r + "Conexion1.jpeg", width: widthUtilSpaceSec2);
+            var img2 = c.CreateNewImage(mainpart, r + "Conexion2.jpeg", width: widthUtilSpaceSec2);
+            var img3 = c.CreateNewImage(mainpart, r + "Diagonal.jpeg", height: heightUtilSpaceSec2);
 
             body.AppendChild(c.CreateNewParagraph("Silueta", ParagraphTypes.Heading2));
             body.AppendChild(img1);
+            body.AppendChild(c.CreateNewPargraphPageBreak());
 
             body.AppendChild(c.CreateNewParagraph("Vista lateral", ParagraphTypes.Heading2));
             body.AppendChild(img2);
+            body.AppendChild(c.CreateNewPargraphPageBreak());
 
             body.AppendChild(c.CreateNewParagraph("Vista Frontal", ParagraphTypes.Heading2));
             body.AppendChild(img3);
@@ -172,11 +175,6 @@ namespace PruebaControlOpenXML
             /// Definir una seccion se realiza despues de haber agregado dentro del -body- el contenido que le corresponde a dicha seccion.
             /// 
             //////
-
-
-
-
-
 
 
 
