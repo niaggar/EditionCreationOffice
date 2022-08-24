@@ -55,7 +55,7 @@ namespace PruebaControlOpenXML
 
 
             var documentSize = PageSizeTypes.A4;
-            var documentMargins = (1984.248, 1984.248, 1984.248, 1984.248);
+            var documentMargins = (1984, 1984, 1984, 1984);
             var c = new WordCommands();
             
             var fileDocument = c.CreateDocument(route);
@@ -153,9 +153,12 @@ namespace PruebaControlOpenXML
             // Creando pagina de titulo para anexos
             c.CreateNewSectionDivider(ref mainpart, "ANEXO 2: CÁLCULO ESTRUCTURAL COLUMNAS C7 TORRECILLAS SOBRE MURO CORTAFUEGO.", documentMargins);
 
-            // Asignando propiedades a la seccion final
-            #region Crear final seccion
-            var secProps2 = c.CreateFinalSection();
+
+
+            // Asignando propiedades a la segunda
+            #region Crear segunda seccion
+            var pSection2= c.CreateNewSection(); // Crea un nuevo parrafo que inicia una seccion
+            var secProps2 = pSection2.Descendants<SectionProperties>().FirstOrDefault(); // Obtiene las propiedades de dicha seccion
 
             secProps2.AppendChild(new HeaderReference() { Type = HeaderFooterValues.Default, Id = anexoHeaderPartId });
             secProps2.AppendChild(new FooterReference() { Type = HeaderFooterValues.Default, Id = globalFooterPartId });
@@ -185,9 +188,37 @@ namespace PruebaControlOpenXML
             body.AppendChild(c.CreateNewParagraph("Vista Frontal", ParagraphTypes.Heading2));
             body.AppendChild(img3);
 
-            // Agregando seccion final
-            body.AppendChild(secProps2);
+            // Agregando primera seccion
+            body.AppendChild(pSection2);
 
+
+            
+            // Asignando propiedades a la seccion final
+            #region Crear final seccion
+            var secFinal = c.CreateFinalSection();
+
+            secFinal.AppendChild(new HeaderReference() { Type = HeaderFooterValues.Default, Id = anexoHeaderPartId });
+            secFinal.AppendChild(new FooterReference() { Type = HeaderFooterValues.Default, Id = globalFooterPartId });
+            WordUtils.SetPageSize(secFinal, documentSize, PageOrientationValues.Portrait);
+            WordUtils.SetMarginSize(secFinal, documentMargins, PageOrientationValues.Portrait);
+            #endregion
+
+            var pagesizeSecFinal = WordUtils.GetPageSize(secFinal);
+            var marginsSecFinal = WordUtils.GetMarginSize(secFinal);
+            var widthUtilSpaceSecFinal = (long)WordUtils.ConvertTwipToCm(pagesizeSecFinal.width - marginsSecFinal.left - marginsSecFinal.right);
+            var heightUtilSpaceSecFinal = (long)WordUtils.ConvertTwipToCm(pagesizeSecFinal.height - marginsSecFinal.top - marginsSecFinal.bottom);
+
+            // Contenido de tercera seccion
+            body.AppendChild(c.CreateNewParagraph("Identificación de nodos y elementos del soporte", ParagraphTypes.Heading2));
+            body.AppendChild(c.CreateNewImageTable(DatosPruebaV5(), (widthUtilSpaceSecFinal, heightUtilSpaceSecFinal), mainpart));
+
+
+            // Agregando seccion final
+            body.AppendChild(secFinal);
+
+
+
+            
             //////
             ///
             /// Nota:
@@ -342,6 +373,22 @@ namespace PruebaControlOpenXML
             datos.Add(new string[2]
             {
                 "Clase B", "Cuando no existen equipos sobre los pórticos."
+            });
+
+            return datos;
+        }
+
+        public List<string[]> DatosPruebaV5()
+        {
+            var datos = new List<string[]>();
+
+            datos.Add(new string[2]
+            {
+                "COLUMNA C3[N]", "~"
+            });
+            datos.Add(new string[2]
+            {
+                @"C:\Users\Asus\OneDrive\Desktop\PruebasOffice\img2\tabla1.jpeg", @"C:\Users\Asus\OneDrive\Desktop\PruebasOffice\img2\tabla2.jpeg"
             });
 
             return datos;

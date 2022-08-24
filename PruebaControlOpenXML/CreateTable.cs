@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.IO;
 using System.Windows.Media.Imaging;
+using DocumentFormat.OpenXml.ExtendedProperties;
 
 namespace PruebaControlOpenXML
 {
@@ -93,16 +94,20 @@ namespace PruebaControlOpenXML
                 var wImgEmus = (long)(img.PixelWidth / img.DpiX * emusPerInch);
                 var hImgEmus = (long)(img.PixelHeight / img.DpiY * emusPerInch);
 
-                var wDifined = (long)(width * emusPerCm);
-                var hDefined = (long)(height * emusPerCm);
+                long wDifined = (long)(width * emusPerCm);
+                long hDefined = (long)(height * emusPerCm);
 
-                if (width == 0)
+                if (width == 0 && height == 0)
+                {
+                    wDifined = wImgEmus;
+                    hDefined = hImgEmus;
+                }
+                else if (width == 0)
                 {
                     var ratio = (wImgEmus * 1.0m) / hImgEmus;
                     wDifined = (long)(hDefined * ratio);
                 }
-
-                if (height == 0)
+                else if (height == 0)
                 {
                     var ratio = (hImgEmus * 1.0m) / wImgEmus;
                     hDefined = (long)(wDifined * ratio);
@@ -517,6 +522,142 @@ namespace PruebaControlOpenXML
                     );
 
                     tableRow.Append(tableCell);
+                }
+
+                table.Append(tableRow);
+            }
+
+            return table;
+        }
+
+        public Table CreateNewImageTable(List<string[]> datosTabla, (double width, double height) utilSpace, MainDocumentPart mainPart, bool haveBorder = true)
+        {
+            Table table = new Table(new TableProperties(
+                new TableWidth() { Width = "5000", Type = TableWidthUnitValues.Pct },
+                new TableBorders(
+                    new TopBorder()
+                    {
+                        Val = haveBorder ? BorderValues.Single : BorderValues.None,
+                        Size = haveBorder ? (UInt32Value)10 : 0,
+                    },
+                    new BottomBorder()
+                    {
+                        Val = haveBorder ? BorderValues.Single : BorderValues.None,
+                        Size = haveBorder ? (UInt32Value)10 : 0,
+                    },
+                    new LeftBorder()
+                    {
+                        Val = haveBorder ? BorderValues.Single : BorderValues.None,
+                        Size = haveBorder ? (UInt32Value)10 : 0,
+                    },
+                    new RightBorder()
+                    {
+                        Val = haveBorder ? BorderValues.Single : BorderValues.None,
+                        Size = haveBorder ? (UInt32Value)10 : 0,
+                    },
+                    new InsideHorizontalBorder()
+                    {
+                        Val = haveBorder ? BorderValues.Single : BorderValues.None,
+                        Size = haveBorder ? (UInt32Value)10 : 0,
+                    },
+                    new InsideVerticalBorder()
+                    {
+                        Val = haveBorder ? BorderValues.Single : BorderValues.None,
+                        Size = haveBorder ? (UInt32Value)10 : 0,
+                    }
+                ),
+                new TableCellMarginDefault(
+                    new TopMargin() { Width = "0", Type = TableWidthUnitValues.Dxa },
+                    new StartMargin() { Width = "0", Type = TableWidthUnitValues.Dxa },
+                    new BottomMargin() { Width = "0", Type = TableWidthUnitValues.Dxa },
+                    new EndMargin() { Width = "0", Type = TableWidthUnitValues.Dxa }
+                )
+            ));
+
+            int rowCount = datosTabla.Count;
+            int columnCount = GetColsNumber(datosTabla);
+
+            for (int row = 0; row < rowCount; row++)
+            {
+                TableRow tableRow = new TableRow();
+
+                for (int col = 0; col < columnCount; col++)
+                {
+                    var texto = datosTabla[row].Length > col ? datosTabla[row][col] : "";
+
+                    var pProps = new ParagraphProperties(
+                        new SpacingBetweenLines() { Before = "40", After = "40" },
+                        new Indentation() { Left = "40" },
+                        new Languages() { Val = "es-ES" }
+                    );
+                    var rProps = new RunProperties(
+                        new FontSize() { Val = "20" },
+                        new RunFonts() { Ascii = "Arial", HighAnsi = "Arial", ComplexScript = "Arial" }
+                    );
+                    var cProps = new TableCellProperties(
+                        new TableCellVerticalAlignment() { Val = TableVerticalAlignmentValues.Center }
+                    );
+
+
+                    SetCellTextStyles(ref texto, ref rProps, ref pProps);
+
+
+                    #region Merge celdas
+                    // "~" caracter que indica unir las dos celdas horizontalmente
+                    // "|" caracter que indica unir las dos celdas verticalmente
+
+                    // Validar si la celda es una celda de unir horizontalmente
+                    var cellMerge = texto.Contains("~");
+                    if (cellMerge)
+                    {
+                        texto = texto.Replace("~", "");
+                        cProps.Append(new HorizontalMerge() { Val = MergedCellValues.Continue });
+                    }
+                    else
+                    {
+                        cProps.Append(new HorizontalMerge() { Val = MergedCellValues.Restart });
+                    }
+
+                    // Validar si la celda es una celda de unir verticalmente
+                    var rowMerge = texto.Contains("|");
+                    if (rowMerge)
+                    {
+                        texto = texto.Replace("|", "");
+                        cProps.Append(new VerticalMerge() { Val = MergedCellValues.Continue });
+                    }
+                    else
+                    {
+                        cProps.Append(new VerticalMerge() { Val = MergedCellValues.Restart });
+                    }
+                    #endregion
+
+
+
+                    if (File.Exists(texto))
+                    {
+                        var img = CreateNewImage(mainPart, texto, width: (long)(utilSpace.width / 2));
+                        TableCell tableCell = new TableCell(
+                            cProps,
+                            img
+                        );
+
+                        tableRow.Append(tableCell);
+                    }
+                    else
+                    {
+                        TableCell tableCell = new TableCell(
+                            cProps,
+                            new Paragraph(
+                                pProps,
+                                new Run(
+                                    rProps,
+                                    new Text(texto)
+                                )
+                            )
+                        );
+
+                        tableRow.Append(tableCell);
+                    }
                 }
 
                 table.Append(tableRow);
