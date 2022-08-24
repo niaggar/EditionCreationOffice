@@ -84,16 +84,22 @@ namespace PruebaControlOpenXML
                 using (FileStream stream = new FileStream(fileName, FileMode.Open))
                 {
                     imagePart.FeedData(stream);
+                    stream.Close();
                 }
 
-                var img = new BitmapImage(new Uri(fileName, UriKind.RelativeOrAbsolute));
+                var img = new BitmapImage();
+                using (var fs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    img.BeginInit();
+                    img.StreamSource = fs;
+                    img.EndInit();
+                }
 
                 const int emusPerInch = 914400;
                 const int emusPerCm = 360000;
 
                 var wImgEmus = (long)(img.PixelWidth / img.DpiX * emusPerInch);
                 var hImgEmus = (long)(img.PixelHeight / img.DpiY * emusPerInch);
-
                 long wDifined = (long)(width * emusPerCm);
                 long hDefined = (long)(height * emusPerCm);
 
