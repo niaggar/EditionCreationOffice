@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,6 +43,8 @@ namespace PruebaControlOpenXML
 
             return createFile.FileName;
         }
+
+        
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
@@ -88,130 +91,136 @@ namespace PruebaControlOpenXML
             globalFooter.Save(globalFooterPart);
             #endregion
 
-            // Asignando propiedades a la seccion inicial
-            #region Crear seccion inicial
-            var pSection1 = c.CreateNewSection(); // Crea un nuevo parrafo que inicia una seccion
-            var secProps1 = pSection1.Descendants<SectionProperties>().FirstOrDefault(); // Obtiene las propiedades de dicha seccion
 
-            secProps1.AppendChild(new HeaderReference() { Type = HeaderFooterValues.Default, Id = globalHeaderPartId });
-            secProps1.AppendChild(new FooterReference() { Type = HeaderFooterValues.Default, Id = globalFooterPartId });
-            WordUtils.SetPageSize(secProps1, documentSize, PageOrientationValues.Portrait);
-            WordUtils.SetMarginSize(secProps1, documentMargins, PageOrientationValues.Portrait);
-            #endregion
+            var ciclos = 1;
+            for (int i = 0; i < ciclos; i++)
+            {
+                // Asignando propiedades a la seccion inicial
+                #region Crear seccion inicial
+                var pSection1 = c.CreateNewSection(); // Crea un nuevo parrafo que inicia una seccion
+                var secProps1 = pSection1.Descendants<SectionProperties>().FirstOrDefault(); // Obtiene las propiedades de dicha seccion
 
-            // Contenido seccion inicial del documento
-            body.AppendChild(c.CreateNewParagraph("1 OBJETO", ParagraphTypes.Heading2));
-            body.AppendChild(c.CreateNewParagraph("Este documento presentar los criterios generales empleados para el análisis y el diseño estructural de los pórticos correspondientes al proyecto Segundo Transformador 500/230/34,5 kV – 360 MVA en la subestación Ocaña 500/230 kV, definido en el “Plan de Expansión de Referencia Generación – Transmisión 2015-2029”. La subestación está localizada en el municipio de Ocaña, departamento de Norte de Santander.", ParagraphTypes.Normal));
-            body.AppendChild(c.CreateNewParagraph("Finalmente se presentan los resultados del análisis, el diseño usando el software SAP 2000 y las verificaciones ante las solicitaciones más críticas generadas por las combinaciones de carga.", ParagraphTypes.Normal));
+                secProps1.AppendChild(new HeaderReference() { Type = HeaderFooterValues.Default, Id = globalHeaderPartId });
+                secProps1.AppendChild(new FooterReference() { Type = HeaderFooterValues.Default, Id = globalFooterPartId });
+                WordUtils.SetPageSize(secProps1, documentSize, PageOrientationValues.Portrait);
+                WordUtils.SetMarginSize(secProps1, documentMargins, PageOrientationValues.Portrait);
+                #endregion
 
-                
-            body.AppendChild(c.CreateNewParagraph("2 CRITERIOS Y ANÁLISIS DE DISEÑO", ParagraphTypes.Heading2));
-            body.AppendChild(c.CreateNewParagraph("El diseño de las estructuras metálicas se realizó con base a las especificaciones de las guías de diseño, distancias eléctricas y cargas de conexión, presentadas en los documentos de referencia [1] y [9] y en lo indicado en la referencia [2], considerando las relaciones de esbeltez y los espesores mínimos de los elementos.", ParagraphTypes.Normal));
-
-                
-            body.AppendChild(c.CreateNewParagraph("3 MATERIALES", ParagraphTypes.Heading2));
-            body.AppendChild(c.CreateNewParagraph("Se definen en la Tabla 1, con base en lo indicado en la referencia [3]", ParagraphTypes.Normal));
-                
-            body.AppendChild(c.CreateNewParagraph("Tabla 1 Materiales de los pórticos", ParagraphTypes.Heading1));
-            body.AppendChild(c.CreateNewTable(DatosPruebaV1(), haveBorder: true));
-
-                
-            body.AppendChild(c.CreateNewParagraph("4 CARGAS ACTUANTES SOBRE LOS PÓRTICOS", ParagraphTypes.Heading2));
-            body.AppendChild(c.CreateNewParagraph("Este documento presentar los criterios generales empleados para el análisis y el diseño estructural de los pórticos correspondientes al proyecto Segundo Transformador 500/230/34,5 kV – 360 MVA en la subestación Ocaña 500/230 kV, definido en el “Plan de Expansión de Referencia Generación – Transmisión 2015-2029”. La subestación está localizada en el municipio de Ocaña, departamento de Norte de Santander.", ParagraphTypes.Normal));
-            body.AppendChild(c.CreateNewParagraph("Finalmente se presentan los resultados del análisis, el diseño usando el software SAP 2000 y las verificaciones ante las solicitaciones más críticas generadas por las combinaciones de carga.", ParagraphTypes.Normal));
-
-                
-            body.AppendChild(c.CreateNewParagraph("5 COMBINACIONES DE CARGA", ParagraphTypes.Heading2));
-            body.AppendChild(c.CreateNewParagraph("Este documento presentar los criterios generales empleados para el análisis y el diseño estructural de los pórticos correspondientes al proyecto Segundo Transformador 500/230/34,5 kV – 360 MVA en la subestación Ocaña 500/230 kV, definido en el “Plan de Expansión de Referencia Generación – Transmisión 2015-2029”. La subestación está localizada en el municipio de Ocaña, departamento de Norte de Santander.", ParagraphTypes.Normal));
-            body.AppendChild(c.CreateNewTable(DatosPruebaV2(), haveBorder: false));
-            body.AppendChild(c.CreateNewParagraph("Combinaciones de cargas de servicio (S##):", ParagraphTypes.Normal));
-            body.AppendChild(c.CreateNewTable(DatosPruebaV2(), haveBorder: false));
-
-                
-            body.AppendChild(c.CreateNewParagraph("6 CRITERIOS DE DEFLEXIÓN", ParagraphTypes.Heading2));
-            body.AppendChild(c.CreateNewParagraph("Las deflexiones de los pórticos se limitaran a los valores indicados en las referencias [3] y [4], con base en lo establecido en la referencia [6]", ParagraphTypes.Normal));
-                
-            body.AppendChild(c.CreateNewParagraph("Tabla 2 Deflexiones Admisibles", ParagraphTypes.Heading1));
-            body.AppendChild(c.CreateNewTable(DatosPruebaV3(), haveBorder: true));
-            body.AppendChild(c.CreateNewParagraph("", ParagraphTypes.Table));
-            body.AppendChild(c.CreateNewTable(DatosPruebaV4(), haveBorder: true));
-
-            // Agregando primera seccion
-            body.AppendChild(pSection1);
+                // Contenido seccion inicial del documento
+                body.AppendChild(c.CreateNewParagraph("1 OBJETO", ParagraphTypes.Heading2));
+                body.AppendChild(c.CreateNewParagraph("Este documento presentar los criterios generales empleados para el análisis y el diseño estructural de los pórticos correspondientes al proyecto Segundo Transformador 500/230/34,5 kV – 360 MVA en la subestación Ocaña 500/230 kV, definido en el “Plan de Expansión de Referencia Generación – Transmisión 2015-2029”. La subestación está localizada en el municipio de Ocaña, departamento de Norte de Santander.", ParagraphTypes.Normal));
+                body.AppendChild(c.CreateNewParagraph("Finalmente se presentan los resultados del análisis, el diseño usando el software SAP 2000 y las verificaciones ante las solicitaciones más críticas generadas por las combinaciones de carga.", ParagraphTypes.Normal));
 
 
+                body.AppendChild(c.CreateNewParagraph("2 CRITERIOS Y ANÁLISIS DE DISEÑO", ParagraphTypes.Heading2));
+                body.AppendChild(c.CreateNewParagraph("El diseño de las estructuras metálicas se realizó con base a las especificaciones de las guías de diseño, distancias eléctricas y cargas de conexión, presentadas en los documentos de referencia [1] y [9] y en lo indicado en la referencia [2], considerando las relaciones de esbeltez y los espesores mínimos de los elementos.", ParagraphTypes.Normal));
 
 
-            #region Crear Header seccion anexos
-            var anexoHeaderPart = mainpart.AddNewPart<HeaderPart>();
-            var anexoHeaderPartId = mainpart.GetIdOfPart(anexoHeaderPart);
+                body.AppendChild(c.CreateNewParagraph("3 MATERIALES", ParagraphTypes.Heading2));
+                body.AppendChild(c.CreateNewParagraph("Se definen en la Tabla 1, con base en lo indicado en la referencia [3]", ParagraphTypes.Normal));
 
-            var anexoHeader = c.CreateNewHeaderForSection("UPME 01 – 2018", "ANEXO 2");
-            anexoHeader.Save(anexoHeaderPart);
-            #endregion
-            
-            // Creando pagina de titulo para anexos
-            c.CreateNewSectionDivider(ref mainpart, "ANEXO 2: CÁLCULO ESTRUCTURAL COLUMNAS C7 TORRECILLAS SOBRE MURO CORTAFUEGO.", documentMargins);
+                body.AppendChild(c.CreateNewParagraph("Tabla 1 Materiales de los pórticos", ParagraphTypes.Heading1));
+                body.AppendChild(c.CreateNewTable(DatosPruebaV1(), haveBorder: true));
 
 
-
-            // Asignando propiedades a la segunda
-            #region Crear segunda seccion
-            var pSection2= c.CreateNewSection(); // Crea un nuevo parrafo que inicia una seccion
-            var secProps2 = pSection2.Descendants<SectionProperties>().FirstOrDefault(); // Obtiene las propiedades de dicha seccion
-
-            secProps2.AppendChild(new HeaderReference() { Type = HeaderFooterValues.Default, Id = anexoHeaderPartId });
-            secProps2.AppendChild(new FooterReference() { Type = HeaderFooterValues.Default, Id = globalFooterPartId });
-            WordUtils.SetPageSize(secProps2, documentSize, PageOrientationValues.Landscape);
-            WordUtils.SetMarginSize(secProps2, documentMargins, PageOrientationValues.Landscape);
-            #endregion
-
-            var pagesizeSec2 = WordUtils.GetPageSize(secProps2);
-            var marginsSec2 = WordUtils.GetMarginSize(secProps2);
-            var widthUtilSpaceSec2 = (long)WordUtils.ConvertTwipToCm(pagesizeSec2.width - marginsSec2.left - marginsSec2.right);
-            var heightUtilSpaceSec2 = (long)WordUtils.ConvertTwipToCm(pagesizeSec2.height - marginsSec2.top - marginsSec2.bottom);
-
-            // Contenido de la seccion de anexos
-            var r = @"C:\Users\Asus\OneDrive\Desktop\PruebasOffice\img2\";
-            var img1 = c.CreateNewImage(mainpart, r + "Conexion1.jpeg", width: widthUtilSpaceSec2);
-            var img2 = c.CreateNewImage(mainpart, r + "Conexion2.jpeg", width: widthUtilSpaceSec2);
-            var img3 = c.CreateNewImage(mainpart, r + "Diagonal.jpeg", height: heightUtilSpaceSec2);
-
-            body.AppendChild(c.CreateNewParagraph("Silueta", ParagraphTypes.Heading2));
-            body.AppendChild(img1);
-            body.AppendChild(c.CreateNewPargraphPageBreak());
-
-            body.AppendChild(c.CreateNewParagraph("Vista lateral", ParagraphTypes.Heading2));
-            body.AppendChild(img2);
-            body.AppendChild(c.CreateNewPargraphPageBreak());
-
-            body.AppendChild(c.CreateNewParagraph("Vista Frontal", ParagraphTypes.Heading2));
-            body.AppendChild(img3);
-
-            // Agregando primera seccion
-            body.AppendChild(pSection2);
+                body.AppendChild(c.CreateNewParagraph("4 CARGAS ACTUANTES SOBRE LOS PÓRTICOS", ParagraphTypes.Heading2));
+                body.AppendChild(c.CreateNewParagraph("Este documento presentar los criterios generales empleados para el análisis y el diseño estructural de los pórticos correspondientes al proyecto Segundo Transformador 500/230/34,5 kV – 360 MVA en la subestación Ocaña 500/230 kV, definido en el “Plan de Expansión de Referencia Generación – Transmisión 2015-2029”. La subestación está localizada en el municipio de Ocaña, departamento de Norte de Santander.", ParagraphTypes.Normal));
+                body.AppendChild(c.CreateNewParagraph("Finalmente se presentan los resultados del análisis, el diseño usando el software SAP 2000 y las verificaciones ante las solicitaciones más críticas generadas por las combinaciones de carga.", ParagraphTypes.Normal));
 
 
-            
+                body.AppendChild(c.CreateNewParagraph("5 COMBINACIONES DE CARGA", ParagraphTypes.Heading2));
+                body.AppendChild(c.CreateNewParagraph("Este documento presentar los criterios generales empleados para el análisis y el diseño estructural de los pórticos correspondientes al proyecto Segundo Transformador 500/230/34,5 kV – 360 MVA en la subestación Ocaña 500/230 kV, definido en el “Plan de Expansión de Referencia Generación – Transmisión 2015-2029”. La subestación está localizada en el municipio de Ocaña, departamento de Norte de Santander.", ParagraphTypes.Normal));
+                body.AppendChild(c.CreateNewTable(DatosPruebaV2(), haveBorder: false));
+                body.AppendChild(c.CreateNewParagraph("Combinaciones de cargas de servicio (S##):", ParagraphTypes.Normal));
+                body.AppendChild(c.CreateNewTable(DatosPruebaV2(), haveBorder: false));
+
+
+                body.AppendChild(c.CreateNewParagraph("6 CRITERIOS DE DEFLEXIÓN", ParagraphTypes.Heading2));
+                body.AppendChild(c.CreateNewParagraph("Las deflexiones de los pórticos se limitaran a los valores indicados en las referencias [3] y [4], con base en lo establecido en la referencia [6]", ParagraphTypes.Normal));
+
+                body.AppendChild(c.CreateNewParagraph("Tabla 2 Deflexiones Admisibles", ParagraphTypes.Heading1));
+                body.AppendChild(c.CreateNewTable(DatosPruebaV3(), haveBorder: true));
+                body.AppendChild(c.CreateNewParagraph("", ParagraphTypes.Table));
+                body.AppendChild(c.CreateNewTable(DatosPruebaV4(), haveBorder: true));
+
+                // Agregando primera seccion
+                body.AppendChild(pSection1);
+
+                #region Crear Header seccion anexos
+                var anexoHeaderPart = mainpart.AddNewPart<HeaderPart>();
+                var anexoHeaderPartId = mainpart.GetIdOfPart(anexoHeaderPart);
+
+                var anexoHeader = c.CreateNewHeaderForSection("UPME 01 – 2018", "ANEXO 2");
+                anexoHeader.Save(anexoHeaderPart);
+                #endregion
+
+                // Creando pagina de titulo para anexos
+                c.CreateNewSectionDivider(ref mainpart, "ANEXO 2: CÁLCULO ESTRUCTURAL COLUMNAS C7 TORRECILLAS SOBRE MURO CORTAFUEGO.", documentMargins);
+
+                // Asignando propiedades a la segunda
+                #region Crear segunda seccion
+                var pSection2 = c.CreateNewSection(); // Crea un nuevo parrafo que inicia una seccion
+                var secProps2 = pSection2.Descendants<SectionProperties>().FirstOrDefault(); // Obtiene las propiedades de dicha seccion
+
+                secProps2.AppendChild(new HeaderReference() { Type = HeaderFooterValues.Default, Id = anexoHeaderPartId });
+                secProps2.AppendChild(new FooterReference() { Type = HeaderFooterValues.Default, Id = globalFooterPartId });
+                WordUtils.SetPageSize(secProps2, documentSize, PageOrientationValues.Landscape);
+                WordUtils.SetMarginSize(secProps2, documentMargins, PageOrientationValues.Landscape);
+                #endregion
+
+                var pagesizeSec2 = WordUtils.GetPageSize(secProps2);
+                var marginsSec2 = WordUtils.GetMarginSize(secProps2);
+                var widthUtilSpaceSec2 = (long)WordUtils.ConvertTwipToCm(pagesizeSec2.width - marginsSec2.left - marginsSec2.right);
+                var heightUtilSpaceSec2 = (long)WordUtils.ConvertTwipToCm(pagesizeSec2.height - marginsSec2.top - marginsSec2.bottom);
+
+                // Contenido de la seccion de anexos
+                var r = @"C:\Users\Asus\OneDrive\Desktop\PruebasOffice\img2\";
+                var img1 = c.CreateNewImage(mainpart, r + "Conexion1.jpeg", escale: 0.5);
+                var img2 = c.CreateNewImage(mainpart, r + "Conexion2.jpeg", width: widthUtilSpaceSec2);
+                var img3 = c.CreateNewImage(mainpart, r + "Diagonal.jpeg", height: heightUtilSpaceSec2);
+
+                body.AppendChild(c.CreateNewParagraph("Silueta", ParagraphTypes.Heading2));
+                body.AppendChild(img1);
+                body.AppendChild(c.CreateNewPargraphPageBreak());
+
+                body.AppendChild(c.CreateNewParagraph("Vista lateral", ParagraphTypes.Heading2));
+                body.AppendChild(img2);
+                body.AppendChild(c.CreateNewPargraphPageBreak());
+
+                body.AppendChild(c.CreateNewParagraph("Vista Frontal", ParagraphTypes.Heading2));
+                body.AppendChild(img3);
+
+                // Agregando primera seccion
+                body.AppendChild(pSection2);
+
+                #region Crear tercera seccion
+                var pSection3 = c.CreateNewSection(); // Crea un nuevo parrafo que inicia una seccion
+                var secProps3 = pSection3.Descendants<SectionProperties>().FirstOrDefault(); // Obtiene las propiedades de dicha seccion
+
+                secProps3.AppendChild(new HeaderReference() { Type = HeaderFooterValues.Default, Id = anexoHeaderPartId });
+                secProps3.AppendChild(new FooterReference() { Type = HeaderFooterValues.Default, Id = globalFooterPartId });
+                WordUtils.SetPageSize(secProps3, documentSize, PageOrientationValues.Portrait);
+                WordUtils.SetMarginSize(secProps3, documentMargins, PageOrientationValues.Portrait);
+                #endregion
+
+                var pagesizeSecFinal = WordUtils.GetPageSize(secProps3);
+                var marginsSecFinal = WordUtils.GetMarginSize(secProps3);
+                var widthUtilSpaceSecFinal = (long)WordUtils.ConvertTwipToCm(pagesizeSecFinal.width - marginsSecFinal.left - marginsSecFinal.right);
+                var heightUtilSpaceSecFinal = (long)WordUtils.ConvertTwipToCm(pagesizeSecFinal.height - marginsSecFinal.top - marginsSecFinal.bottom);
+
+                // Contenido de tercera seccion
+                body.AppendChild(c.CreateNewParagraph("Identificación de nodos y elementos del soporte", ParagraphTypes.Heading2));
+                body.AppendChild(c.CreateNewImageTable(DatosPruebaV5(), (widthUtilSpaceSecFinal, heightUtilSpaceSecFinal), mainpart));
+
+                body.AppendChild(pSection3);
+            }
+
+
+
             // Asignando propiedades a la seccion final
             #region Crear final seccion
             var secFinal = c.CreateFinalSection();
-
-            secFinal.AppendChild(new HeaderReference() { Type = HeaderFooterValues.Default, Id = anexoHeaderPartId });
-            secFinal.AppendChild(new FooterReference() { Type = HeaderFooterValues.Default, Id = globalFooterPartId });
-            WordUtils.SetPageSize(secFinal, documentSize, PageOrientationValues.Portrait);
-            WordUtils.SetMarginSize(secFinal, documentMargins, PageOrientationValues.Portrait);
             #endregion
-
-            var pagesizeSecFinal = WordUtils.GetPageSize(secFinal);
-            var marginsSecFinal = WordUtils.GetMarginSize(secFinal);
-            var widthUtilSpaceSecFinal = (long)WordUtils.ConvertTwipToCm(pagesizeSecFinal.width - marginsSecFinal.left - marginsSecFinal.right);
-            var heightUtilSpaceSecFinal = (long)WordUtils.ConvertTwipToCm(pagesizeSecFinal.height - marginsSecFinal.top - marginsSecFinal.bottom);
-
-            // Contenido de tercera seccion
-            body.AppendChild(c.CreateNewParagraph("Identificación de nodos y elementos del soporte", ParagraphTypes.Heading2));
-            body.AppendChild(c.CreateNewImageTable(DatosPruebaV5(), (widthUtilSpaceSecFinal, heightUtilSpaceSecFinal), mainpart));
-
 
             // Agregando seccion final
             body.AppendChild(secFinal);
@@ -394,5 +403,125 @@ namespace PruebaControlOpenXML
             return datos;
         }
         #endregion
+
+
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            var count = 2000;
+
+
+            DateTime firstTime = DateTime.Now;
+            Console.WriteLine("Start time: " + firstTime);
+            
+            var r = @"C:\Users\Asus\OneDrive\Desktop\PruebasOffice\img2\";
+            ImageControl.CopyImage(r + "Conexion2.jpeg", count);
+
+            Console.WriteLine("Final time copy file: " + (DateTime.Now - firstTime));
+
+
+
+            DateTime secondTime = DateTime.Now;
+            Console.WriteLine("Start time: " + secondTime);
+
+            var img = new BitmapImage();
+            var imgBase64 = "";
+            using (var fs = new FileStream(r + "Conexion2.jpeg", FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                img.BeginInit();
+                img.StreamSource = fs;
+                imgBase64 = ImageControl.ImageToBase64(img);
+                img.EndInit();
+            }
+
+            string[] datos = new string[count];
+            for (int i = 0; i < count; i++)
+            {
+                datos[i] = "[jpeg]" + imgBase64;
+            }
+
+            ImageControl.WriteTextToFile(datos);
+
+            Console.WriteLine("Final time convert to txt: " + (DateTime.Now - secondTime));
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            string route = GetSaveRoute();
+            if (route == "") return;
+
+
+            
+            DateTime firstTime = DateTime.Now;
+            Console.WriteLine("Start time: " + firstTime);
+            
+            
+
+            var c = new WordCommands();
+            var fileDocument = c.CreateDocument(route);
+            if (fileDocument == null)
+            {
+                return;
+            }
+
+            var mainpart = fileDocument.AddMainDocumentPart();
+            var doc = mainpart.Document = new Document();
+            var body = doc.AppendChild(new Body());
+
+            string[] readText = File.ReadAllLines(@"C:\Users\Asus\OneDrive\Desktop\PruebasOffice\images\img.txt");
+
+            foreach (var item in readText)
+            {
+                body.AppendChild(c.CreateNewParagraph("Silueta", ParagraphTypes.Heading2));
+                body.AppendChild(c.CreateNewBase64Image(mainpart, item, escale: 0.5));
+                body.AppendChild(c.CreateNewPargraphPageBreak());
+            }
+
+            mainpart.Document.Save();
+            fileDocument.Close();
+
+
+
+            Console.WriteLine("Final time base64: " + (DateTime.Now - firstTime));
+        }
+
+        private void Button_Click_3(object sender, RoutedEventArgs e)
+        {
+            string route = GetSaveRoute();
+            if (route == "") return;
+
+
+
+            DateTime firstTime = DateTime.Now;
+            Console.WriteLine("Start time: " + firstTime);
+
+
+
+            var c = new WordCommands();
+            var fileDocument = c.CreateDocument(route);
+            if (fileDocument == null)
+            {
+                return;
+            }
+
+            var mainpart = fileDocument.AddMainDocumentPart();
+            var doc = mainpart.Document = new Document();
+            var body = doc.AppendChild(new Body());
+
+            var baseRoute = @"C:\Users\Asus\OneDrive\Desktop\PruebasOffice\images\";
+            for (int i = 0; i < 2000; i++)
+            {
+                body.AppendChild(c.CreateNewParagraph("Silueta", ParagraphTypes.Heading2));
+                body.AppendChild(c.CreateNewImage(mainpart, baseRoute + $"img-{i}.jpeg", escale: 0.5));
+                body.AppendChild(c.CreateNewPargraphPageBreak());
+            }
+
+            mainpart.Document.Save();
+            fileDocument.Close();
+
+
+
+            Console.WriteLine("Final time files: " + (DateTime.Now - firstTime));
+        }
     }
 }

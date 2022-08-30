@@ -9,12 +9,22 @@
     Width="800"
     Height="450"
     mc:Ignorable="d">
-    <Grid>
+    <StackPanel VerticalAlignment="Center">
         <Button
             HorizontalAlignment="Center"
-            VerticalAlignment="Center"
             Click="Button_Click"
             Content="Probar crear tabla" />
-
-    </Grid>
+        <Button
+            HorizontalAlignment="Center"
+            Click="Button_Click_1"
+            Content="Probar crear y guardar images" />
+        <Button
+            HorizontalAlignment="Center"
+            Click="Button_Click_2"
+            Content="Probar base64 imagenes" />
+        <Button
+            HorizontalAlignment="Center"
+            Click="Button_Click_3"
+            Content="Probar archivos imagenes" />
+    </StackPanel>
 </Window>

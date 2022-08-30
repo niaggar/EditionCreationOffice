@@ -66,6 +66,143 @@ namespace PruebaControlOpenXML
 
 
         #region Crear imagenes
+        public Paragraph CreateNewBase64Image(MainDocumentPart mainPart, string base64, double escale = 1)
+        {
+            try
+            {
+                ImagePart imagePart;
+
+                if (base64.ToLower().Contains("[jpeg]"))
+                {
+                    imagePart = mainPart.AddImagePart(ImagePartType.Jpeg);
+                    base64 = base64.Replace("[jpeg]", "");
+                }
+                else if (base64.ToLower().Contains("[png]"))
+                {
+                    imagePart = mainPart.AddImagePart(ImagePartType.Png);
+                    base64 = base64.Replace("[png]", "");
+                }
+                else throw new Exception("Formato de imagen no soportado");
+
+                
+                byte[] imgBytes = Convert.FromBase64String(base64);
+                BitmapImage img = new BitmapImage();
+                
+                img.BeginInit();
+                img.StreamSource = new MemoryStream(imgBytes);
+                img.EndInit();
+                imagePart.FeedData(new MemoryStream(imgBytes));
+
+                const int emusPerInch = 914400;
+                var wImgEmus = (long)(img.PixelWidth / img.DpiX * emusPerInch);
+                var hImgEmus = (long)(img.PixelHeight / img.DpiY * emusPerInch);
+
+                return CreateNewImageElement(mainPart.GetIdOfPart(imagePart), new Size(wImgEmus * escale, hImgEmus * escale));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return new Paragraph();
+            }
+        }
+
+        public Paragraph CreateNewBase64Image(MainDocumentPart mainPart, string base64, long width = 0, long height = 0)
+        {
+            try
+            {
+                ImagePart imagePart;
+
+                if (base64.ToLower().Contains("[jpeg]"))
+                {
+                    imagePart = mainPart.AddImagePart(ImagePartType.Jpeg);
+                    base64 = base64.Replace("[jpeg]", "");
+                }
+                else if (base64.ToLower().Contains("[png]"))
+                {
+                    imagePart = mainPart.AddImagePart(ImagePartType.Png);
+                    base64 = base64.Replace("[png]", "");
+                }
+                else throw new Exception("Formato de imagen no soportado");
+
+                
+                byte[] imgBytes = Convert.FromBase64String(base64);
+                BitmapImage img = new BitmapImage();
+
+                img.BeginInit();
+                img.StreamSource = new MemoryStream(imgBytes);
+                img.EndInit();
+                imagePart.FeedData(new MemoryStream(imgBytes));
+
+                const int emusPerInch = 914400;
+                const int emusPerCm = 360000;
+
+                var wImgEmus = (long)(img.PixelWidth / img.DpiX * emusPerInch);
+                var hImgEmus = (long)(img.PixelHeight / img.DpiY * emusPerInch);
+                var wDifined = (long)(width * emusPerCm);
+                var hDefined = (long)(height * emusPerCm);
+
+                if (width == 0)
+                {
+                    var ratio = (wImgEmus * 1.0m) / hImgEmus;
+                    wDifined = (long)(hDefined * ratio);
+                }
+                else if (height == 0)
+                {
+                    var ratio = (hImgEmus * 1.0m) / wImgEmus;
+                    hDefined = (long)(wDifined * ratio);
+                }
+
+                return CreateNewImageElement(mainPart.GetIdOfPart(imagePart), new Size(wDifined, hDefined));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return new Paragraph();
+            }
+        }
+
+        public Paragraph CreateNewImage(MainDocumentPart mainPart, string fileName, double escale = 1)
+        {
+            try
+            {
+                ImagePart imagePart;
+
+                if (fileName.ToLower().Contains(".jpeg") || fileName.ToLower().Contains(".jpg"))
+                    imagePart = mainPart.AddImagePart(ImagePartType.Jpeg);
+
+                else if (fileName.ToLower().Contains(".png"))
+                    imagePart = mainPart.AddImagePart(ImagePartType.Png);
+
+                else throw new Exception("Formato de imagen no soportado");
+
+
+                using (FileStream stream = new FileStream(fileName, FileMode.Open))
+                {
+                    imagePart.FeedData(stream);
+                    stream.Close();
+                }
+
+                var img = new BitmapImage();
+                using (var fs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    img.BeginInit();
+                    img.StreamSource = fs;
+                    img.EndInit();
+                }
+
+                const int emusPerInch = 914400;
+                var wImgEmus = (long)(img.PixelWidth / img.DpiX * emusPerInch);
+                var hImgEmus = (long)(img.PixelHeight / img.DpiY * emusPerInch);
+
+                return CreateNewImageElement(mainPart.GetIdOfPart(imagePart), new Size(wImgEmus * escale, hImgEmus * escale));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return new Paragraph();
+            }
+        }
+        
         public Paragraph CreateNewImage(MainDocumentPart mainPart, string fileName, long width = 0, long height = 0)
         {
             try
@@ -100,15 +237,10 @@ namespace PruebaControlOpenXML
 
                 var wImgEmus = (long)(img.PixelWidth / img.DpiX * emusPerInch);
                 var hImgEmus = (long)(img.PixelHeight / img.DpiY * emusPerInch);
-                long wDifined = (long)(width * emusPerCm);
-                long hDefined = (long)(height * emusPerCm);
-
-                if (width == 0 && height == 0)
-                {
-                    wDifined = wImgEmus;
-                    hDefined = hImgEmus;
-                }
-                else if (width == 0)
+                var wDifined = (long)(width * emusPerCm);
+                var hDefined = (long)(height * emusPerCm);
+                
+                if (width == 0)
                 {
                     var ratio = (wImgEmus * 1.0m) / hImgEmus;
                     wDifined = (long)(hDefined * ratio);
