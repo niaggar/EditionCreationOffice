@@ -166,13 +166,11 @@ namespace PruebaControlOpenXML
             try
             {
                 ImagePart imagePart;
-
-                if (fileName.ToLower().Contains(".jpeg") || fileName.ToLower().Contains(".jpg"))
+                var extension = System.IO.Path.GetExtension(fileName);
+                if (extension == ".jpeg" || extension == ".jpg")
                     imagePart = mainPart.AddImagePart(ImagePartType.Jpeg);
-
-                else if (fileName.ToLower().Contains(".png"))
+                else if (extension == ".png")
                     imagePart = mainPart.AddImagePart(ImagePartType.Png);
-
                 else throw new Exception("Formato de imagen no soportado");
 
 
@@ -208,13 +206,11 @@ namespace PruebaControlOpenXML
             try
             {
                 ImagePart imagePart;
-
-                if (fileName.ToLower().Contains(".jpeg") || fileName.ToLower().Contains(".jpg"))
+                var extension = System.IO.Path.GetExtension(fileName);
+                if (extension == ".jpeg" || extension == ".jpg")
                     imagePart = mainPart.AddImagePart(ImagePartType.Jpeg);
-
-                else if (fileName.ToLower().Contains(".png"))
+                else if (extension == ".png")
                     imagePart = mainPart.AddImagePart(ImagePartType.Png);
-
                 else throw new Exception("Formato de imagen no soportado");
 
 
@@ -376,7 +372,7 @@ namespace PruebaControlOpenXML
 
         public SectionProperties CreateFinalSection()
         {
-            var SectionBreakProperties = new SectionProperties(new SectionType() { Val = SectionMarkValues.NextPage });
+            var SectionBreakProperties = new SectionProperties(new SectionType() { Val = SectionMarkValues.Continuous });
 
             return SectionBreakProperties;
         }
@@ -615,7 +611,7 @@ namespace PruebaControlOpenXML
                         new TableCellVerticalAlignment() { Val = TableVerticalAlignmentValues.Center }
                     );
 
-
+                    SetCellStyles(ref texto, ref cProps);
                     SetCellTextStyles(ref texto, ref rProps, ref pProps);
 
                     #region Merge celdas
@@ -736,9 +732,8 @@ namespace PruebaControlOpenXML
                         new TableCellVerticalAlignment() { Val = TableVerticalAlignmentValues.Center }
                     );
 
-
+                    SetCellStyles(ref texto, ref cProps);
                     SetCellTextStyles(ref texto, ref rProps, ref pProps);
-
 
                     #region Merge celdas
                     // "~" caracter que indica unir las dos celdas horizontalmente
@@ -768,7 +763,6 @@ namespace PruebaControlOpenXML
                         cProps.Append(new VerticalMerge() { Val = MergedCellValues.Restart });
                     }
                     #endregion
-
 
 
                     if (File.Exists(texto))
@@ -804,11 +798,25 @@ namespace PruebaControlOpenXML
             return table;
         }
 
+        private static void SetCellStyles(ref string texto, ref TableCellProperties cProps)
+        {
+            var colorCell = texto.Contains("[CC:");
+
+            if (colorCell)
+            {
+                var color = texto.Substring(texto.IndexOf("[CC:") + 4, 7);
+                cProps.Append(new Shading() { Val = ShadingPatternValues.Clear, Color = "auto", Fill = color });
+                texto = texto.Replace("[CC:" + color + "]", "");
+            }
+        }
+
         private static void SetCellTextStyles(ref string texto, ref RunProperties rProps, ref ParagraphProperties pProps)
         {
             var bold = texto.Contains("[N]");
             var italic = texto.Contains("[I]");
             var underline = texto.Contains("[U]");
+            var fontSize = texto.Contains("[F:");
+            var fontColor = texto.Contains("[FC:");
             var jLeft = texto.Contains("¬");
 
             if (bold)
@@ -827,6 +835,20 @@ namespace PruebaControlOpenXML
             {
                 rProps.AppendChild(new Underline() { Val = UnderlineValues.Single });
                 texto = texto.Replace("[U]", "");
+            }
+
+            if (fontSize)
+            {
+                var fontSizeValue = texto.Substring(texto.IndexOf("[F:") + 3, 2);
+                rProps.AppendChild(new FontSize() { Val = fontSizeValue });
+                texto = texto.Replace("[F:" + fontSizeValue + "]", "");
+            }
+
+            if (fontColor)
+            {
+                var fontColorValue = texto.Substring(texto.IndexOf("[FC:") + 4, 7);
+                rProps.AppendChild(new Color() { Val = fontColorValue });
+                texto = texto.Replace("[FC:" + fontColorValue + "]", "");
             }
 
             if (jLeft)

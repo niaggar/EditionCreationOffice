@@ -34,7 +34,7 @@ namespace PruebaControlOpenXML
             var createFile = new SaveFileDialog()
             {
                 FileName = "TestOpenXML.docx",
-                Filter = "Word Files (*.docx;*.doc)|*.docx;*.doc",
+                Filter = "Word Files (*.docx)|*.docx",
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 DefaultExt = "docx"
             };
@@ -87,12 +87,13 @@ namespace PruebaControlOpenXML
             var globalFooterPart = mainpart.AddNewPart<FooterPart>();
             var globalFooterPartId = mainpart.GetIdOfPart(globalFooterPart);
 
-            var globalFooter = c.CreateNewFooterForSection("Archivo: CO-TROC-DSIEB-S-00-D1508(3)");
+            var name = System.IO.Path.GetFileNameWithoutExtension(route);
+            var globalFooter = c.CreateNewFooterForSection($"Archivo: {name}");
             globalFooter.Save(globalFooterPart);
             #endregion
 
 
-            var ciclos = 1;
+            var ciclos = 100;
             for (int i = 0; i < ciclos; i++)
             {
                 // Asignando propiedades a la seccion inicial
@@ -142,6 +143,9 @@ namespace PruebaControlOpenXML
                 body.AppendChild(c.CreateNewTable(DatosPruebaV3(), haveBorder: true));
                 body.AppendChild(c.CreateNewParagraph("", ParagraphTypes.Table));
                 body.AppendChild(c.CreateNewTable(DatosPruebaV4(), haveBorder: true));
+                body.AppendChild(c.CreateNewParagraph("", ParagraphTypes.Table));
+                body.AppendChild(c.CreateNewTable(DatosPruebaDobleTitulo(), haveBorder: true));
+
 
                 // Agregando primera seccion
                 body.AppendChild(pSection1);
@@ -220,6 +224,9 @@ namespace PruebaControlOpenXML
             // Asignando propiedades a la seccion final
             #region Crear final seccion
             var secFinal = c.CreateFinalSection();
+            
+            WordUtils.SetPageSize(secFinal, documentSize, PageOrientationValues.Portrait);
+            WordUtils.SetMarginSize(secFinal, documentMargins, PageOrientationValues.Portrait);
             #endregion
 
             // Agregando seccion final
@@ -227,7 +234,7 @@ namespace PruebaControlOpenXML
 
 
 
-            
+
             //////
             ///
             /// Nota:
@@ -241,6 +248,9 @@ namespace PruebaControlOpenXML
             fileDocument.Close();
 
 
+            WordUtils.SaveDocumentAsPdf(route, System.IO.Path.ChangeExtension(route, ".pdf"));
+
+
             System.Console.WriteLine("Final time: " + (DateTime.Now - originalTime));
         }
 
@@ -251,35 +261,35 @@ namespace PruebaControlOpenXML
 
             datos.Add(new string[3]
             {
-                "Elemento", "Perfiles¬", "ASTM A-572 Gr50¬"
+                "Elemento", $"Perfiles{WordUtils.SetLeftAligment()}", $"ASTM A-572 Gr50{WordUtils.SetLeftAligment()}"
             });
             datos.Add(new string[3]
             {
-                "|", "Platinas¬", "ASTM A-36¬"
+                "|", $"Platinas{WordUtils.SetLeftAligment()}", $"ASTM A-36{WordUtils.SetLeftAligment()}"
             });
             datos.Add(new string[3]
             {
-                "|", "Soldadura¬", "De acuerdo AWS D1.1 y D1.3.\r\nElectrodos E70-XX¬"
+                "|", $"Soldadura{WordUtils.SetLeftAligment()}", $"De acuerdo AWS D1.1 y D1.3.\r\nElectrodos E70-XX{WordUtils.SetLeftAligment()}"
             });
             datos.Add(new string[3]
             {
-                "|", "Tornillos¬", "ASTM A-394 TIPO 0¬"
+                "|", $"Tornillos{WordUtils.SetLeftAligment()}", $"ASTM A-394 TIPO 0{WordUtils.SetLeftAligment()}"
             });
             datos.Add(new string[3]
             {
-                "|", "Pernos de anclaje¬", "F1554 Gr 55¬"
+                "|", $"Pernos de anclaje{WordUtils.SetLeftAligment()}", $"F1554 Gr 55{WordUtils.SetLeftAligment()}"
             });
             datos.Add(new string[3]
             {
-                "|", "Arandelas¬", "ASTM F-436¬"
+                "|", $"Arandelas{WordUtils.SetLeftAligment()}", $"ASTM F-436{WordUtils.SetLeftAligment()}"
             });
             datos.Add(new string[3]
             {
-                "|", "Tuercas¬", "ASTM A-563¬"
+                "|", $"Tuercas{WordUtils.SetLeftAligment()}", $"ASTM A-563{WordUtils.SetLeftAligment()}"
             });
             datos.Add(new string[3]
             {
-                "|", "Galvanización¬", "ASTM A-123¬"
+                "|", $"Galvanización{WordUtils.SetLeftAligment()}", $"ASTM A-123{WordUtils.SetLeftAligment()}"
             });
 
 
@@ -292,51 +302,51 @@ namespace PruebaControlOpenXML
 
             datos.Add(new string[2]
             {
-                "U1.0¬", "1,2PP + 1,3CT + 1,0CMM¬"
+                $"U1.0{WordUtils.SetLeftAligment()}", $"1,2PP + 1,3CT + 1,0CMM{WordUtils.SetLeftAligment()}"
             });
             datos.Add(new string[2]
             {
-                "U2.0¬", "1,1PP +1,38Vx + 1,38CTv + 0,75CC + 1,1CT¬"
+                $"U2.0{WordUtils.SetLeftAligment()}", $"1,1PP +1,38Vx + 1,38CTv + 0,75CC + 1,1CT{WordUtils.SetLeftAligment()}"
             });
             datos.Add(new string[2]
             {
-                "U2.1¬", "1,1PP + 1,38Vy + 1,38CTv + 0,75CC + 1,1CT¬"
+                $"U2.1{WordUtils.SetLeftAligment()}", $"1,1PP + 1,38Vy + 1,38CTv + 0,75CC + 1,1CT{WordUtils.SetLeftAligment()}"
             });
             datos.Add(new string[2]
             {
-                "U4.0¬", "1,1PP + 1,0CC + 1,1CT¬"
+                $"U4.0{WordUtils.SetLeftAligment()}", $"1,1PP + 1,0CC + 1,1CT{WordUtils.SetLeftAligment()}"
             });
             datos.Add(new string[2]
             {
-                "U5.0¬", "1,1PP + 1,0Ex + 0,3Ey - 1,0Ez + 0,75CC + 1,1CT¬"
+                $"U5.0{WordUtils.SetLeftAligment()}", $"1,1PP + 1,0Ex + 0,3Ey - 1,0Ez + 0,75CC + 1,1CT{WordUtils.SetLeftAligment()}"
             });
             datos.Add(new string[2]
             {
-                "U5.1¬", "1,1PP - 1,0Ex + 0,3Ey - 1,0Ez + 0,75CC + 1,1CT¬"
+                $"U5.1{WordUtils.SetLeftAligment()}", $"1,1PP - 1,0Ex + 0,3Ey - 1,0Ez + 0,75CC + 1,1CT{WordUtils.SetLeftAligment()}"
             });
             datos.Add(new string[2]
             {
-                "U1.0¬", "1,2PP + 1,3CT + 1,0CMM¬"
+                $"U1.0{WordUtils.SetLeftAligment()}", $"1,2PP + 1,3CT + 1,0CMM{WordUtils.SetLeftAligment()}"
             });
             datos.Add(new string[2]
             {
-                "U2.0¬", "1,1PP +1,38Vx + 1,38CTv + 0,75CC + 1,1CT¬"
+                $"U2.0{WordUtils.SetLeftAligment()}", $"1,1PP +1,38Vx + 1,38CTv + 0,75CC + 1,1CT{WordUtils.SetLeftAligment()}"
             });
             datos.Add(new string[2]
             {
-                "U2.1¬", "1,1PP + 1,38Vy + 1,38CTv + 0,75CC + 1,1CT¬"
+                $"U2.1{WordUtils.SetLeftAligment()}", $"1,1PP + 1,38Vy + 1,38CTv + 0,75CC + 1,1CT{WordUtils.SetLeftAligment()}"
             });
             datos.Add(new string[2]
             {
-                "U4.0¬", "1,1PP + 1,0CC + 1,1CT¬"
+                $"U4.0{WordUtils.SetLeftAligment()}", $"1,1PP + 1,0CC + 1,1CT{WordUtils.SetLeftAligment()}"
             });
             datos.Add(new string[2]
             {
-                "U5.0¬", "1,1PP + 1,0Ex + 0,3Ey - 1,0Ez + 0,75CC + 1,1CT¬"
+                $"U5.0{WordUtils.SetLeftAligment()}", $"1,1PP + 1,0Ex + 0,3Ey - 1,0Ez + 0,75CC + 1,1CT{WordUtils.SetLeftAligment()}"
             });
             datos.Add(new string[2]
             {
-                "U5.1¬", "1,1PP - 1,0Ex + 0,3Ey - 1,0Ez + 0,75CC + 1,1CT¬"
+                $"U5.1{WordUtils.SetLeftAligment()}", $"1,1PP - 1,0Ex + 0,3Ey - 1,0Ez + 0,75CC + 1,1CT{WordUtils.SetLeftAligment()}"
             });
 
 
@@ -349,7 +359,7 @@ namespace PruebaControlOpenXML
 
             datos.Add(new string[5]
             {
-                "TIPO DE DEFLEXIÓN[N]", "ESTRUCTURA CLASE A[N]", "~", "ESTRUCTURA CLASE B[N]", "~"
+                $"TIPO DE DEFLEXIÓN{WordUtils.SetBold()}", $"ESTRUCTURA CLASE A{WordUtils.SetBold()}", "~", $"ESTRUCTURA CLASE B{WordUtils.SetBold()}", "~"
             });
             datos.Add(new string[5]
             {
@@ -373,7 +383,7 @@ namespace PruebaControlOpenXML
 
             datos.Add(new string[2]
             {
-                "Clasificación de los miembros, según ASCE - 113[N]", "~"
+                $"Clasificación de los miembros, según ASCE - 113{WordUtils.SetBold()}", "~"
             });
             datos.Add(new string[2]
             {
@@ -393,7 +403,7 @@ namespace PruebaControlOpenXML
 
             datos.Add(new string[2]
             {
-                "COLUMNA C3[N]", "~"
+                $"COLUMNA C3{WordUtils.SetBold()}", "~"
             });
             datos.Add(new string[2]
             {
@@ -401,6 +411,57 @@ namespace PruebaControlOpenXML
             });
 
             return datos;
+        }
+
+        public List<string[]> DatosPruebaDobleTitulo()
+        {
+            List<string[]> Datos = new List<string[]>();
+
+            var stylesTitle = $"{WordUtils.SetBold()}{WordUtils.SetFontSize(24)}{WordUtils.SetCellColor("#FF0000")}{WordUtils.SetFontColor("#FFFFFF")}";
+
+            string[] Titulo = new string[4];
+            Titulo[0] = $"Cara Superior{stylesTitle}";
+            Titulo[1] = "~";
+            Titulo[2] = "~";
+            Titulo[3] = "~";
+            Datos.Add(Titulo);
+
+            string[] Tex1 = new string[4];
+            Tex1[0] = $"Diseño Losa{WordUtils.SetLeftAligment()}{stylesTitle}";
+            Tex1[1] = $"{stylesTitle}";
+            Tex1[2] = $"Dir x{stylesTitle}";
+            Tex1[3] = $"Dir y{stylesTitle}";
+            Datos.Add(Tex1);
+
+            string[] Tex2 = new string[4];
+            Tex2[0] = $"Mu negativo{WordUtils.SetLeftAligment()}";
+            Tex2[1] = "kg-m/m";
+            Tex2[2] = "16541";
+            Tex2[3] = "75843";
+            Datos.Add(Tex2);
+
+            string[] Tex3 = new string[4];
+            Tex3[0] = $"Cuantia negativa{WordUtils.SetLeftAligment()}";
+            Tex3[1] = "";
+            Tex3[2] = "0.0015";
+            Tex3[3] = "0.0017";
+            Datos.Add(Tex3);
+
+            string[] Tex4 = new string[4];
+            Tex4[0] = $"Cuantia negativa{WordUtils.SetLeftAligment()}";
+            Tex4[1] = "";
+            Tex4[2] = "0.0018";
+            Tex4[3] = "~";
+            Datos.Add(Tex4);
+
+            string[] Tex5 = new string[4];
+            Tex5[0] = $"Barras{WordUtils.SetLeftAligment()}";
+            Tex5[1] = "fi";
+            Tex5[2] = "No. 4";
+            Tex5[3] = "No. 4";
+            Datos.Add(Tex5);
+
+            return Datos;
         }
         #endregion
 
@@ -413,7 +474,7 @@ namespace PruebaControlOpenXML
 
             DateTime firstTime = DateTime.Now;
             Console.WriteLine("Start time: " + firstTime);
-            
+
             var r = @"C:\Users\Asus\OneDrive\Desktop\PruebasOffice\img2\";
             ImageControl.CopyImage(r + "Conexion2.jpeg", count);
 

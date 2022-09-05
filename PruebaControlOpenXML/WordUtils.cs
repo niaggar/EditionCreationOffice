@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
-
+using Microsoft.Office.Interop.Word;
 
 namespace PruebaControlOpenXML
 {
@@ -146,6 +146,44 @@ namespace PruebaControlOpenXML
         #endregion
 
 
+        #region Comandos para personalizar textos en tablas
+        public static string SetBold()
+        {
+            return "[N]";
+        }
+
+        public static string SetItalic()
+        {
+            return "[I]";
+        }
+
+        public static string SetUnderline()
+        {
+            return "[U]";
+        }
+
+        public static string SetFontSize(int size)
+        {
+            return $"[F:{size}]";
+        }
+
+        public static string SetFontColor(string color)
+        {
+            return $"[FC:{color}]";
+        }
+
+        public static string SetCellColor(string color)
+        {
+            return $"[CC:{color}]";
+        }
+
+        public static string SetLeftAligment()
+        {
+            return "¬";
+        }
+        #endregion
+
+        
         #region Conversor de unidades
         /// <summary>
         /// Convertir cm a twip
@@ -167,5 +205,17 @@ namespace PruebaControlOpenXML
             return valtwip * 0.0017638889;
         }
         #endregion
+
+
+        public static void SaveDocumentAsPdf(string docFullPath, string pdfFullPath)
+        {
+            Application appWord = new Application();
+            appWord.Visible = false;
+            var wordDocument = appWord.Documents.Open(docFullPath);
+
+            wordDocument.SaveAs2(pdfFullPath, WdSaveFormat.wdFormatPDF);
+            wordDocument.Close(false);
+            appWord.Quit();
+        }
     }
 }
