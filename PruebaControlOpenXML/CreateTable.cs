@@ -13,6 +13,7 @@ using System.Windows;
 using System.IO;
 using System.Windows.Media.Imaging;
 using DocumentFormat.OpenXml.ExtendedProperties;
+using Style = DocumentFormat.OpenXml.Wordprocessing.Style;
 
 namespace PruebaControlOpenXML
 {
@@ -106,7 +107,7 @@ namespace PruebaControlOpenXML
             }
         }
 
-        public Paragraph CreateNewBase64Image(MainDocumentPart mainPart, string base64, long width = 0, long height = 0)
+        public Paragraph CreateNewBase64Image(MainDocumentPart mainPart, string base64, double width = 0, double height = 0)
         {
             try
             {
@@ -161,6 +162,10 @@ namespace PruebaControlOpenXML
             }
         }
 
+
+
+
+
         public Paragraph CreateNewImage(MainDocumentPart mainPart, string fileName, double escale = 1)
         {
             try
@@ -200,8 +205,76 @@ namespace PruebaControlOpenXML
                 return new Paragraph();
             }
         }
-        
-        public Paragraph CreateNewImage(MainDocumentPart mainPart, string fileName, long width = 0, long height = 0)
+
+
+
+
+
+
+
+
+
+
+
+
+        // Metodos corregidos para generar imagenes con el tamaño especifico dado como parametro
+
+        /// <summary>
+        /// Crear imagenes con width y height definidos
+        /// </summary>
+        /// <param name="mainPart"></param>
+        /// <param name="fileName"></param>
+        /// <param name="width">Pulgadas</param>
+        /// <param name="height">Pulgadas</param>
+        /// <returns></returns>
+        public Paragraph CreateNewImage(MainDocumentPart mainPart, string fileName, double width = 0, double height = 0)
+        {
+            try
+            {
+                ImagePart imagePart;
+                var extension = System.IO.Path.GetExtension(fileName);
+                if (extension == ".jpeg" || extension == ".jpg")
+                    imagePart = mainPart.AddImagePart(ImagePartType.Jpeg);
+                else if (extension == ".png")
+                    imagePart = mainPart.AddImagePart(ImagePartType.Png);
+                else throw new Exception("Formato de imagen no soportado");
+
+
+                using (FileStream stream = new FileStream(fileName, FileMode.Open))
+                {
+                    imagePart.FeedData(stream);
+                    stream.Close();
+                }
+
+                var img = new BitmapImage();
+                using (var fs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    img.BeginInit();
+                    img.StreamSource = fs;
+                    img.EndInit();
+                }
+
+                long emuWidth = (long)(height * 914400);
+                long emuHeight = (long)(width * 914400);
+
+                return CreateNewImageElement(mainPart.GetIdOfPart(imagePart), new Size(emuWidth, emuHeight));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return new Paragraph();
+            }
+        }
+
+        /// <summary>
+        /// Crear imagenes con width definido y height maximo
+        /// </summary>
+        /// <param name="mainPart"></param>
+        /// <param name="fileName"></param>
+        /// <param name="width">Pulgadas</param>
+        /// <param name="height">Pulgadas</param>
+        /// <returns></returns>
+        public Paragraph CreateNewImageWidth(MainDocumentPart mainPart, string fileName, double width, double maxheight, bool scale = true)
         {
             try
             {
@@ -229,25 +302,31 @@ namespace PruebaControlOpenXML
                 }
 
                 const int emusPerInch = 914400;
-                const int emusPerCm = 360000;
 
-                var wImgEmus = (long)(img.PixelWidth / img.DpiX * emusPerInch);
-                var hImgEmus = (long)(img.PixelHeight / img.DpiY * emusPerInch);
-                var wDifined = (long)(width * emusPerCm);
-                var hDefined = (long)(height * emusPerCm);
-                
-                if (width == 0)
+
+
+                long emuWidth = (long)(width * 914400);
+                long maxEmuHeight = (long)(maxheight * 914400);
+
+                long wImgEmus = (long)(img.PixelWidth / img.DpiX * emusPerInch);
+                long hImgEmus = (long)(img.PixelHeight / img.DpiY * emusPerInch);
+
+                var ratHeight = hImgEmus / wImgEmus;
+                long emuHeight = (long)(emuWidth * ratHeight);
+
+
+                if (maxheight != 0 && maxEmuHeight < emuHeight && scale == true)
                 {
-                    var ratio = (wImgEmus * 1.0m) / hImgEmus;
-                    wDifined = (long)(hDefined * ratio);
+                    emuHeight = maxEmuHeight;
+                    var ratWidht = wImgEmus / hImgEmus;
+                    emuWidth = (long)(maxEmuHeight * ratWidht);
                 }
-                else if (height == 0)
+                else if (maxheight != 0 && maxEmuHeight < emuHeight && scale == false)
                 {
-                    var ratio = (hImgEmus * 1.0m) / wImgEmus;
-                    hDefined = (long)(wDifined * ratio);
+                    emuHeight = maxEmuHeight;
                 }
 
-                return CreateNewImageElement(mainPart.GetIdOfPart(imagePart), new Size(wDifined, hDefined));
+                return CreateNewImageElement(mainPart.GetIdOfPart(imagePart), new Size(emuWidth, emuHeight));
             }
             catch (Exception ex)
             {
@@ -255,6 +334,87 @@ namespace PruebaControlOpenXML
                 return new Paragraph();
             }
         }
+
+        /// <summary>
+        /// Crear imagenes con width definido y height maximo
+        /// </summary>
+        /// <param name="mainPart"></param>
+        /// <param name="fileName"></param>
+        /// <param name="width">Pulgadas</param>
+        /// <param name="height">Pulgadas</param>
+        /// <returns></returns>
+        public Paragraph CreateNewImageHeight(MainDocumentPart mainPart, string fileName, double height, double maxwidth, bool scale = true)
+        {
+            try
+            {
+                ImagePart imagePart;
+                var extension = System.IO.Path.GetExtension(fileName);
+                if (extension == ".jpeg" || extension == ".jpg")
+                    imagePart = mainPart.AddImagePart(ImagePartType.Jpeg);
+                else if (extension == ".png")
+                    imagePart = mainPart.AddImagePart(ImagePartType.Png);
+                else throw new Exception("Formato de imagen no soportado");
+
+
+                using (FileStream stream = new FileStream(fileName, FileMode.Open))
+                {
+                    imagePart.FeedData(stream);
+                    stream.Close();
+                }
+
+                var img = new BitmapImage();
+                using (var fs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    img.BeginInit();
+                    img.StreamSource = fs;
+                    img.EndInit();
+                }
+
+                const int emusPerInch = 914400;
+
+
+
+                long emuHeight = (long)(height * 914400);
+                long maxEmuWidth = (long)(maxwidth * 914400);
+
+                long wImgEmus = (long)(img.PixelWidth / img.DpiX * emusPerInch);
+                long hImgEmus = (long)(img.PixelHeight / img.DpiY * emusPerInch);
+
+                var ratWidth = wImgEmus / hImgEmus;
+                long emuWidth = (long)(emuHeight * ratWidth);
+
+
+                if (maxwidth != 0 && maxEmuWidth < emuWidth && scale == true)
+                {
+                    emuWidth = maxEmuWidth;
+                    var ratHeight = hImgEmus / wImgEmus;
+                    emuHeight = (long)(maxEmuWidth * ratHeight);
+                }
+                else if (maxwidth != 0 && maxEmuWidth < emuWidth && scale == false)
+                {
+                    emuWidth = maxEmuWidth;
+                }
+
+                return CreateNewImageElement(mainPart.GetIdOfPart(imagePart), new Size(emuHeight, emuHeight));
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return new Paragraph();
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
 
         private static Paragraph CreateNewImageElement(string relationId, Size size)
         {
@@ -911,30 +1071,15 @@ namespace PruebaControlOpenXML
             switch (paragraphType)
             {
                 case ParagraphTypes.Normal:
-                    paragraphStyle.AppendChild(new Justification() { Val = JustificationValues.Both });
-                    paragraphStyle.AppendChild(new SpacingBetweenLines() { LineRule = LineSpacingRuleValues.Auto, Before = "160", After = "160" });
-
-                    runStyle.AppendChild(new FontSize() { Val = "24" });
-                    runStyle.AppendChild(new Color() { Val = "#000000" });
+                    paragraphStyle.ParagraphStyleId = new ParagraphStyleId() { Val = "nn" };
                     break;
 
                 case ParagraphTypes.Heading1:
-                    paragraphStyle.AppendChild(new Justification() { Val = JustificationValues.Center });
-                    paragraphStyle.AppendChild(new SpacingBetweenLines() { LineRule = LineSpacingRuleValues.Auto, Before = "160", After = "160" });
-
-                    runStyle.AppendChild(new Bold());
-                    runStyle.AppendChild(new FontSize() { Val = "24" });
-                    runStyle.AppendChild(new Color() { Val = "#000000" });
+                    paragraphStyle.ParagraphStyleId = new ParagraphStyleId() { Val = "tt1" };
                     break;
 
                 case ParagraphTypes.Heading2:
-                    paragraphStyle.AppendChild(new Justification() { Val = JustificationValues.Left });
-                    paragraphStyle.AppendChild(new SpacingBetweenLines() { LineRule = LineSpacingRuleValues.Auto, Before = "160", After = "160" });
-
-                    runStyle.AppendChild(new Bold());
-                    runStyle.AppendChild(new Italic());
-                    runStyle.AppendChild(new FontSize() { Val = "24" });
-                    runStyle.AppendChild(new Color() { Val = "#000000" });
+                    paragraphStyle.ParagraphStyleId = new ParagraphStyleId() { Val = "tt2" };
                     break;
 
                 case ParagraphTypes.Table:
@@ -947,5 +1092,180 @@ namespace PruebaControlOpenXML
             }
         }
         #endregion
+
+
+        public void CreateAndAddParagraphStyle(StyleDefinitionsPart styleDefinitionsPart, string styleid, string stylename)
+        {
+            // Access the root element of the styles part.
+            Styles styles = styleDefinitionsPart.Styles;
+            if (styles == null)
+            {
+                styleDefinitionsPart.Styles = new Styles();
+                styleDefinitionsPart.Styles.Save();
+            }
+
+            // Create a new paragraph style element and specify some of the attributes.
+            Style style = new Style()
+            {
+                Type = StyleValues.Paragraph,
+                StyleId = styleid,
+                CustomStyle = true,
+                Default = false
+            };
+
+            // Create and add the child elements (properties of the style).
+            BasedOn basedon1 = new BasedOn() { Val = "Normal" };
+            NextParagraphStyle nextParagraphStyle1 = new NextParagraphStyle() { Val = "Normal" };
+            LinkedStyle linkedStyle1 = new LinkedStyle() { Val = "Ttulo1Car" };
+            PrimaryStyle primaryStyle = new PrimaryStyle();
+
+
+            ParagraphProperties pprops = new ParagraphProperties();
+            NumberingProperties nprop = new NumberingProperties();
+            nprop.Append(new NumberingId() { Val = 1 });
+            nprop.Append(new NumberingLevelReference() { Val = 0 });
+
+            pprops.Append(nprop);
+
+            AutoRedefine autoredefine1 = new AutoRedefine() { Val = OnOffOnlyValues.Off };
+            Locked locked1 = new Locked() { Val = OnOffOnlyValues.Off };
+            PrimaryStyle primarystyle1 = new PrimaryStyle() { Val = OnOffOnlyValues.On };
+            StyleHidden stylehidden1 = new StyleHidden() { Val = OnOffOnlyValues.Off };
+            SemiHidden semihidden1 = new SemiHidden() { Val = OnOffOnlyValues.Off };
+            StyleName styleName1 = new StyleName() { Val = stylename };
+            UIPriority uipriority1 = new UIPriority() { Val = 1 };
+            UnhideWhenUsed unhidewhenused1 = new UnhideWhenUsed() { Val = OnOffOnlyValues.On };
+
+
+            style.Append(autoredefine1);
+            style.Append(basedon1);
+            style.Append(linkedStyle1);
+            style.Append(locked1);
+            style.Append(primarystyle1);
+            style.Append(stylehidden1);
+            style.Append(semihidden1);
+            style.Append(styleName1);
+            style.Append(nextParagraphStyle1);
+            style.Append(uipriority1);
+            style.Append(unhidewhenused1);
+            style.Append(primaryStyle);
+            style.Append(pprops);
+
+            // Create the StyleRunProperties object and specify some of the run properties.
+            StyleRunProperties styleRunProperties1 = new StyleRunProperties();
+            Bold bold1 = new Bold();
+            Color color1 = new Color() { ThemeColor = ThemeColorValues.Accent2 };
+            RunFonts font1 = new RunFonts() { Ascii = "Lucida Console" };
+            Italic italic1 = new Italic();
+            // Specify a 12 point size.
+            FontSize fontSize1 = new FontSize() { Val = "24" };
+
+
+            styleRunProperties1.Append(bold1);
+            styleRunProperties1.Append(color1);
+            styleRunProperties1.Append(font1);
+            styleRunProperties1.Append(fontSize1);
+            styleRunProperties1.Append(italic1);
+
+            // Add the run properties to the style.
+            style.Append(styleRunProperties1);
+
+            // Add the style to the styles part.
+            styles.Append(style);
+        }
+
+
+
+
+
+
+
+
+        public string GetTOC(string title, int titleFontSize)
+        {
+            return $@"<w:sdt>
+     <w:sdtPr>
+        <w:id w:val=""-493258456"" />
+        <w:docPartObj>
+           <w:docPartGallery w:val=""Table of Contents"" />
+           <w:docPartUnique />
+        </w:docPartObj>
+     </w:sdtPr>
+     <w:sdtEndPr>
+        <w:rPr>
+           <w:rFonts w:asciiTheme=""minorHAnsi"" w:eastAsiaTheme=""minorHAnsi"" w:hAnsiTheme=""minorHAnsi"" w:cstheme=""minorBidi"" />
+           <w:b />
+           <w:bCs />
+           <w:noProof />
+           <w:color w:val=""auto"" />
+           <w:sz w:val=""22"" />
+           <w:szCs w:val=""22"" />
+        </w:rPr>
+     </w:sdtEndPr>
+     <w:sdtContent>
+        <w:p w:rsidR=""00095C65"" w:rsidRDefault=""00095C65"">
+           <w:pPr>
+              <w:pStyle w:val=""TOCHeading"" />
+              <w:jc w:val=""center"" /> 
+           </w:pPr>
+           <w:r>
+                <w:rPr>
+                  <w:b /> 
+                  <w:color w:val=""2E74B5"" w:themeColor=""accent1"" w:themeShade=""BF"" /> 
+                  <w:sz w:val=""{titleFontSize * 2}"" /> 
+                  <w:szCs w:val=""{titleFontSize * 2}"" /> 
+              </w:rPr>
+              <w:t>{title}</w:t>
+           </w:r>
+        </w:p>
+        <w:p w:rsidR=""00095C65"" w:rsidRDefault=""00095C65"">
+           <w:r>
+              <w:rPr>
+                 <w:b />
+                 <w:bCs />
+                 <w:noProof />
+              </w:rPr>
+              <w:fldChar w:fldCharType=""begin"" />
+           </w:r>
+           <w:r>
+              <w:rPr>
+                 <w:b />
+                 <w:bCs />
+                 <w:noProof />
+              </w:rPr>
+              <w:instrText xml:space=""preserve""> TOC \h \z \t ""tt1,1,tt2,2"" </w:instrText>
+           </w:r>
+           <w:r>
+              <w:rPr>
+                 <w:b />
+                 <w:bCs />
+                 <w:noProof />
+              </w:rPr>
+              <w:fldChar w:fldCharType=""separate"" />
+           </w:r>
+           <w:r>
+              <w:rPr>
+                 <w:noProof />
+              </w:rPr>
+              <w:t>No table of contents entries found.</w:t>
+           </w:r>
+           <w:r>
+              <w:rPr>
+                 <w:b />
+                 <w:bCs />
+                 <w:noProof />
+              </w:rPr>
+              <w:fldChar w:fldCharType=""end"" />
+           </w:r>
+        </w:p>
+     </w:sdtContent>
+  </w:sdt>";
+        }
+
+
+        public void GetTOCTable(string title, int titleFontSize)
+        {
+
+        }
     }
 }

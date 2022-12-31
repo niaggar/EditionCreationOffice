@@ -34,13 +34,13 @@ namespace PruebaControlOpenXML
             pgSz.Orient = new EnumValue<PageOrientationValues>(pageOrientation);
             if (pageOrientation == PageOrientationValues.Portrait)
             {
-                pgSz.Width = (UInt32Value)width;
-                pgSz.Height = (UInt32Value)height;
+                pgSz.Width = (UInt32Value)ConvertInchToTwip(width);
+                pgSz.Height = (UInt32Value)ConvertInchToTwip(height);
             }
             else
             {
-                pgSz.Width = (UInt32Value)height;
-                pgSz.Height = (UInt32Value)width;
+                pgSz.Width = (UInt32Value)ConvertInchToTwip(height);
+                pgSz.Height = (UInt32Value)ConvertInchToTwip(width);
             }
         }
 
@@ -61,17 +61,17 @@ namespace PruebaControlOpenXML
 
             if (pageOrientation == PageOrientationValues.Portrait)
             {
-                pgMar.Top = (Int32Value)margin.top;
-                pgMar.Bottom = (Int32Value)margin.bottom;
-                pgMar.Left = (UInt32Value)margin.left;
-                pgMar.Right = (UInt32Value)margin.right;
+                pgMar.Top = (Int32Value)ConvertInchToTwip(margin.top);
+                pgMar.Bottom = (Int32Value)ConvertInchToTwip(margin.bottom);
+                pgMar.Left = (UInt32Value)ConvertInchToTwip(margin.left);
+                pgMar.Right = (UInt32Value)ConvertInchToTwip(margin.right);
             }
             else
             {
-                pgMar.Top = (Int32Value)margin.left;
-                pgMar.Bottom = (Int32Value)margin.right;
-                pgMar.Left = (UInt32Value)margin.bottom;
-                pgMar.Right = (UInt32Value)margin.top;
+                pgMar.Top = (Int32Value)ConvertInchToTwip(margin.left);
+                pgMar.Bottom = (Int32Value)ConvertInchToTwip(margin.right);
+                pgMar.Left = (UInt32Value)ConvertInchToTwip(margin.bottom);
+                pgMar.Right = (UInt32Value)ConvertInchToTwip(margin.top);
             }
         }
 
@@ -125,17 +125,17 @@ namespace PruebaControlOpenXML
             switch (pageSizeTypes)
             {
                 case PageSizeTypes.A4:
-                    width = 11900;
-                    height = 16840;
+                    width = 8.27;
+                    height = 11.69;
                     break;
 
                 case PageSizeTypes.A5:
-                    width = 8400;
-                    height = 11900;
+                    width = 5.83;
+                    height = 8.27;
                     break;
                 case PageSizeTypes.A6:
-                    width = 5960;
-                    height = 8400;
+                    width = 5.83;
+                    height = 8.27;
                     break;
                 case PageSizeTypes.Custom:
                     break;
@@ -183,8 +183,18 @@ namespace PruebaControlOpenXML
         }
         #endregion
 
-        
+
         #region Conversor de unidades
+        /// <summary>
+        /// Convertir pulgada a twip
+        /// </summary>
+        /// <param name="valcm"></param>
+        /// <returns></returns>
+        public static double ConvertInchToTwip(double valp)
+        {
+            return valp * 1440;
+        }
+
         /// <summary>
         /// Convertir cm a twip
         /// </summary>
@@ -192,7 +202,7 @@ namespace PruebaControlOpenXML
         /// <returns></returns>
         public static double ConvertCmToTwip(double valcm)
         {
-            return valcm / 0.0017638889;
+            return valcm * 567;
         }
 
         /// <summary>
@@ -202,7 +212,17 @@ namespace PruebaControlOpenXML
         /// <returns></returns>
         public static double ConvertTwipToCm(double valtwip)
         {
-            return valtwip * 0.0017638889;
+            return valtwip * (1 / 567);
+        }
+
+        /// <summary>
+        /// Convertir twip a cm
+        /// </summary>
+        /// <param name="valtwip"></param>
+        /// <returns></returns>
+        public static double ConvertTwipToInch(double valtwip)
+        {
+            return valtwip * (1 / 1440);
         }
         #endregion
 

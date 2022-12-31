@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -57,8 +58,12 @@ namespace PruebaControlOpenXML
             System.Console.WriteLine("Start time: " + originalTime);
 
 
+            // 1 Pulgada = 1440 twips
+            // 1 cm = 567 twips
+
+
             var documentSize = PageSizeTypes.A4;
-            var documentMargins = (1984, 1984, 1984, 1984);
+            var documentMargins = (top: 1, right: 1, bottom: 1, left: 1);
             var c = new WordCommands();
             
             var fileDocument = c.CreateDocument(route);
@@ -93,7 +98,7 @@ namespace PruebaControlOpenXML
             #endregion
 
 
-            var ciclos = 100;
+            var ciclos = 1;
             for (int i = 0; i < ciclos; i++)
             {
                 // Asignando propiedades a la seccion inicial
@@ -172,27 +177,27 @@ namespace PruebaControlOpenXML
                 WordUtils.SetMarginSize(secProps2, documentMargins, PageOrientationValues.Landscape);
                 #endregion
 
-                var pagesizeSec2 = WordUtils.GetPageSize(secProps2);
-                var marginsSec2 = WordUtils.GetMarginSize(secProps2);
-                var widthUtilSpaceSec2 = (long)WordUtils.ConvertTwipToCm(pagesizeSec2.width - marginsSec2.left - marginsSec2.right);
-                var heightUtilSpaceSec2 = (long)WordUtils.ConvertTwipToCm(pagesizeSec2.height - marginsSec2.top - marginsSec2.bottom);
+                var pagesizeSec2 = WordUtils.GetPaperSize(documentSize);
+                var marginsSec2 = documentMargins;
+                var widthUtilSpaceSec2 = pagesizeSec2.width - marginsSec2.right - marginsSec2.left;
+                var heightUtilSpaceSec2 = pagesizeSec2.height - marginsSec2.top - marginsSec2.bottom;
 
                 // Contenido de la seccion de anexos
-                var r = @"C:\Users\Asus\OneDrive\Desktop\PruebasOffice\img2\";
-                var img1 = c.CreateNewImage(mainpart, r + "Conexion1.jpeg", escale: 0.5);
-                var img2 = c.CreateNewImage(mainpart, r + "Conexion2.jpeg", width: widthUtilSpaceSec2);
-                var img3 = c.CreateNewImage(mainpart, r + "Diagonal.jpeg", height: heightUtilSpaceSec2);
+                var r = @"C:\Users\Nicolas\Desktop\";
+                //var img1 = c.CreateNewImage(mainpart, r + "img.jpg", escale: 0.5);
+                var img2 = c.CreateNewImage(mainpart, r + "img.jpg", width: widthUtilSpaceSec2, height: heightUtilSpaceSec2);
+                //var img3 = c.CreateNewImage(mainpart, r + "Diagonal.jpeg", height: heightUtilSpaceSec2);
 
-                body.AppendChild(c.CreateNewParagraph("Silueta", ParagraphTypes.Heading2));
-                body.AppendChild(img1);
-                body.AppendChild(c.CreateNewPargraphPageBreak());
+                //body.AppendChild(c.CreateNewParagraph("Silueta", ParagraphTypes.Heading2));
+                //body.AppendChild(img1);
+                //body.AppendChild(c.CreateNewPargraphPageBreak());
 
-                body.AppendChild(c.CreateNewParagraph("Vista lateral", ParagraphTypes.Heading2));
+                //body.AppendChild(c.CreateNewParagraph("Vista lateral", ParagraphTypes.Heading2));
                 body.AppendChild(img2);
                 body.AppendChild(c.CreateNewPargraphPageBreak());
 
-                body.AppendChild(c.CreateNewParagraph("Vista Frontal", ParagraphTypes.Heading2));
-                body.AppendChild(img3);
+                //body.AppendChild(c.CreateNewParagraph("Vista Frontal", ParagraphTypes.Heading2));
+                //body.AppendChild(img3);
 
                 // Agregando primera seccion
                 body.AppendChild(pSection2);
@@ -248,7 +253,7 @@ namespace PruebaControlOpenXML
             fileDocument.Close();
 
 
-            WordUtils.SaveDocumentAsPdf(route, System.IO.Path.ChangeExtension(route, ".pdf"));
+            //WordUtils.SaveDocumentAsPdf(route, System.IO.Path.ChangeExtension(route, ".pdf"));
 
 
             System.Console.WriteLine("Final time: " + (DateTime.Now - originalTime));
@@ -583,6 +588,241 @@ namespace PruebaControlOpenXML
 
 
             Console.WriteLine("Final time files: " + (DateTime.Now - firstTime));
+        }
+
+        private void Button_Click_4(object sender, RoutedEventArgs e)
+        {
+            string route = GetSaveRoute();
+            if (route == "") return;
+
+            var documentSize = PageSizeTypes.A4;
+            var documentMargins = (top: 0.79, right: 0.98, bottom: 1.18, left: 1.38);
+
+            var c = new WordCommands();
+
+            var fileDocument = c.CreateDocument(route);
+            var mainpart = fileDocument.AddMainDocumentPart();
+            var doc = mainpart.Document = new Document();
+            var body = doc.AppendChild(new Body());
+
+
+
+            #region Crear Header Global
+            var golbalHeaderPart = mainpart.AddNewPart<HeaderPart>();
+            var globalHeaderPartId = mainpart.GetIdOfPart(golbalHeaderPart);
+
+            var globalHeader = c.CreateNewHeaderForSection("CO-RBAN: RENOVACIÓN SUBESTACIÓN BANADÍA 230 kV", "MEMORIA DE DISEÑO DE ESTRUCTURAS METÁLICAS DE PÓRTICOS");
+            globalHeader.Save(golbalHeaderPart);
+            #endregion
+
+            #region Crear Footer Global
+            var globalFooterPart = mainpart.AddNewPart<FooterPart>();
+            var globalFooterPartId = mainpart.GetIdOfPart(globalFooterPart);
+
+            var name = System.IO.Path.GetFileNameWithoutExtension(route);
+            var globalFooter = c.CreateNewFooterForSection($"Archivo: {name}");
+            globalFooter.Save(globalFooterPart);
+            #endregion
+
+
+
+
+            #region Crear Tabla de contenidos
+            var sdtBlock = new SdtBlock();
+            sdtBlock.InnerXml = c.GetTOC("Contenido", 16);
+            doc.MainDocumentPart.Document.Body.AppendChild(sdtBlock);
+
+
+            var settingsPart = doc.MainDocumentPart.AddNewPart<DocumentSettingsPart>();
+            settingsPart.Settings = new Settings { BordersDoNotSurroundFooter = new BordersDoNotSurroundFooter() { Val = true } };
+            settingsPart.Settings.Append(new UpdateFieldsOnOpen() { Val = true });
+            #endregion
+
+
+
+
+
+
+            StyleDefinitionsPart part = doc.MainDocumentPart.StyleDefinitionsPart;
+            if (part == null) part = StyleGenerator.AddStylesPartToPackage(doc);
+            StyleGenerator.CreateAndAddParagraphStyle(part);
+
+
+
+            var numbering = mainpart.AddNewPart<NumberingDefinitionsPart>();
+            var numberingId = mainpart.GetIdOfPart(numbering);
+
+
+
+
+            #region Create Numberingo
+            Numbering globalNumbering = new Numbering();
+            globalNumbering.AddNamespaceDeclaration("wpc", "http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas");
+            globalNumbering.AddNamespaceDeclaration("cx", "http://schemas.microsoft.com/office/drawing/2014/chartex");
+            globalNumbering.AddNamespaceDeclaration("cx1", "http://schemas.microsoft.com/office/drawing/2015/9/8/chartex");
+            globalNumbering.AddNamespaceDeclaration("cx2", "http://schemas.microsoft.com/office/drawing/2015/10/21/chartex");
+            globalNumbering.AddNamespaceDeclaration("mc", "http://schemas.openxmlformats.org/markup-compatibility/2006");
+            globalNumbering.AddNamespaceDeclaration("o", "urn:schemas-microsoft-com:office:office");
+            globalNumbering.AddNamespaceDeclaration("r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
+            globalNumbering.AddNamespaceDeclaration("m", "http://schemas.openxmlformats.org/officeDocument/2006/math");
+            globalNumbering.AddNamespaceDeclaration("v", "urn:schemas-microsoft-com:vml");
+            globalNumbering.AddNamespaceDeclaration("wp14", "http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing");
+            globalNumbering.AddNamespaceDeclaration("wp", "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing");
+            globalNumbering.AddNamespaceDeclaration("w10", "urn:schemas-microsoft-com:office:word");
+            globalNumbering.AddNamespaceDeclaration("w", "http://schemas.openxmlformats.org/wordprocessingml/2006/main");
+            globalNumbering.AddNamespaceDeclaration("w14", "http://schemas.microsoft.com/office/word/2010/wordml");
+            globalNumbering.AddNamespaceDeclaration("w15", "http://schemas.microsoft.com/office/word/2012/wordml");
+            globalNumbering.AddNamespaceDeclaration("w16se", "http://schemas.microsoft.com/office/word/2015/wordml/symex");
+            globalNumbering.AddNamespaceDeclaration("wpg", "http://schemas.microsoft.com/office/word/2010/wordprocessingGroup");
+            globalNumbering.AddNamespaceDeclaration("wpi", "http://schemas.microsoft.com/office/word/2010/wordprocessingInk");
+            globalNumbering.AddNamespaceDeclaration("wne", "http://schemas.microsoft.com/office/word/2006/wordml");
+            globalNumbering.AddNamespaceDeclaration("wps", "http://schemas.microsoft.com/office/word/2010/wordprocessingShape");
+
+
+
+
+            var abs = new AbstractNum() { AbstractNumberId = 0 };
+
+
+            Nsid nsid3 = new Nsid() { Val = "70913756" };
+            MultiLevelType multiLevelType3 = new MultiLevelType() { Val = MultiLevelValues.Multilevel };
+            TemplateCode templateCode3 = new TemplateCode() { Val = "624EA66A" };
+            AbstractNumDefinitionName abstractNumDefinitionName1 = new AbstractNumDefinitionName() { Val = "TitlesNumberingDEFAULT" };
+
+
+
+
+            var level1 = new Level() { LevelIndex = 0 };
+
+            var pPr1 = new PreviousParagraphProperties();
+            pPr1.Append(new Tabs(new TabStop() { Val = TabStopValues.Number, Position = 0 }));
+            pPr1.Append(new Indentation() { Left = "432", Hanging = "432" });
+
+            var rPr1 = new NumberingSymbolRunProperties();
+            rPr1.Append(new RunFonts() { Hint = FontTypeHintValues.Default });
+
+            level1.Append(new StartNumberingValue() { Val = 1 });
+            level1.Append(new NumberingFormat() { Val = NumberFormatValues.Decimal });
+            level1.Append(new LevelText() { Val = "%1" });
+            level1.Append(new LevelJustification() { Val = LevelJustificationValues.Left });
+            level1.Append(new ParagraphStyleIdInLevel() { Val = "tt1" });
+            level1.Append(pPr1);
+            level1.Append(rPr1);
+
+
+
+
+
+            var level2 = new Level() { LevelIndex = 1 };
+
+            var pPr2 = new PreviousParagraphProperties();
+            pPr2.Append(new Tabs(new TabStop() { Val = TabStopValues.Number, Position = 0 }));
+            pPr2.Append(new Indentation() { Left = "576", Hanging = "576" });
+
+            var rPr2 = new NumberingSymbolRunProperties();
+            rPr2.Append(new RunFonts() { Hint = FontTypeHintValues.Default });
+
+            level2.Append(new NumberingFormat() { Val = NumberFormatValues.Decimal });
+            level2.Append(new ParagraphStyleIdInLevel() { Val = "tt2" });
+            level2.Append(new StartNumberingValue() { Val = 1 });
+            level2.Append(new LevelText() { Val = "%1.%2" });
+            level2.Append(new LevelJustification() { Val = LevelJustificationValues.Left });
+            level2.Append(pPr2);
+            level2.Append(rPr2);
+
+
+            abs.Append(nsid3);
+            abs.Append(multiLevelType3);
+            abs.Append(templateCode3);
+            abs.Append(abstractNumDefinitionName1);
+            abs.Append(level1);
+            abs.Append(level2);
+
+            for (int i = 2; i < 9; i++)
+            {
+                var level = new Level() { LevelIndex = i };
+
+                var pPr = new PreviousParagraphProperties();
+                pPr.Append(new Tabs(new TabStop() { Val = TabStopValues.Number, Position = 0 }));
+                pPr.Append(new Indentation() { Left = $"{577 + (144 * (i - 1))}", Hanging = $"{577 + (144 * (i - 1))}" });
+
+                var rPr = new NumberingSymbolRunProperties();
+                rPr.Append(new RunFonts() { Hint = FontTypeHintValues.Default });
+
+                level.Append(new NumberingFormat() { Val = NumberFormatValues.Decimal });
+                level.Append(new ParagraphStyleIdInLevel() { Val = $"tt{i+1}" });
+                level.Append(new StartNumberingValue() { Val = 1 });
+                level.Append(new LevelText() { Val = $"%{i}" });
+                level.Append(new LevelJustification() { Val = LevelJustificationValues.Left });
+                level.Append(pPr);
+                level.Append(rPr);
+
+                abs.Append(level);
+            }
+
+
+            NumberingInstance numberingInstance = new NumberingInstance() { NumberID = 1 };
+            numberingInstance.Append(new AbstractNumId() { Val = 0 });
+            NumberingInstance numberingInstance2 = new NumberingInstance() { NumberID = 15 };
+            numberingInstance.Append(new AbstractNumId() { Val = 0 });
+
+            globalNumbering.Append(abs);
+            globalNumbering.Append(numberingInstance);
+            globalNumbering.Append(numberingInstance2);
+            numbering.Numbering = globalNumbering;
+            #endregion
+
+
+
+            #region Seccion 1
+            #region Crear seccion inicial
+            // Crear seccion
+            var pSection1 = c.CreateNewSection();
+            var secProps1 = pSection1.Descendants<SectionProperties>().FirstOrDefault();
+
+            // Agregar header y footer de seccion
+            secProps1.AppendChild(new HeaderReference() { Type = HeaderFooterValues.Default, Id = globalHeaderPartId });
+            secProps1.AppendChild(new FooterReference() { Type = HeaderFooterValues.Default, Id = globalFooterPartId });
+
+            // Establecer tamaños
+            WordUtils.SetPageSize(secProps1, documentSize, PageOrientationValues.Portrait);
+            WordUtils.SetMarginSize(secProps1, documentMargins, PageOrientationValues.Portrait);
+            #endregion
+
+            #region Contenido
+            body.AppendChild(c.CreateNewParagraph("OBJETO", ParagraphTypes.Heading1));
+            body.AppendChild(c.CreateNewParagraph("Este documento presentar los criterios generales empleados para el análisis y el diseño estructural de los pórticos correspondientes al proyecto Segundo Transformador 500/230/34,5 kV – 360 MVA en la subestación Ocaña 500/230 kV, definido en el “Plan de Expansión de Referencia Generación – Transmisión 2015-2029”. La subestación está localizada en el municipio de Ocaña, departamento de Norte de Santander.", ParagraphTypes.Normal));
+            body.AppendChild(c.CreateNewParagraph("OBJETO", ParagraphTypes.Heading1));
+            body.AppendChild(c.CreateNewParagraph("Finalmente se presentan los resultados del análisis, el diseño usando el software SAP 2000 y las verificaciones ante las solicitaciones más críticas generadas por las combinaciones de carga.", ParagraphTypes.Normal));
+            body.AppendChild(c.CreateNewParagraph("CRITERIOS Y ANÁLISIS DE DISEÑO", ParagraphTypes.Heading2));
+            body.AppendChild(c.CreateNewParagraph("El diseño de las estructuras metálicas se realizó con base a las especificaciones de las guías de diseño, distancias eléctricas y cargas de conexión, presentadas en los documentos de referencia [1] y [9] y en lo indicado en la referencia [2], considerando las relaciones de esbeltez y los espesores mínimos de los elementos.", ParagraphTypes.Normal));
+            body.AppendChild(c.CreateNewParagraph("OBJETO", ParagraphTypes.Heading1));
+            body.AppendChild(c.CreateNewParagraph("OBJETO", ParagraphTypes.Heading1));
+            body.AppendChild(c.CreateNewParagraph("CRITERIOS Y ANÁLISIS DE DISEÑO", ParagraphTypes.Heading2));
+            body.AppendChild(c.CreateNewParagraph("CRITERIOS Y ANÁLISIS DE DISEÑO", ParagraphTypes.Heading2));
+            body.AppendChild(c.CreateNewParagraph("CRITERIOS Y ANÁLISIS DE DISEÑO", ParagraphTypes.Heading2));
+            body.AppendChild(c.CreateNewParagraph("OBJETO", ParagraphTypes.Heading1));
+            #endregion
+
+            body.AppendChild(pSection1);
+            #endregion
+
+
+            #region Seccion final
+            #region Crear final seccion
+            var secFinal = c.CreateFinalSection();
+
+            WordUtils.SetPageSize(secFinal, documentSize, PageOrientationValues.Portrait);
+            WordUtils.SetMarginSize(secFinal, documentMargins, PageOrientationValues.Portrait);
+            #endregion
+
+            // Agregando seccion final
+            body.AppendChild(secFinal);
+            #endregion
+
+
+            mainpart.Document.Save();
+            fileDocument.Close();
         }
     }
 }

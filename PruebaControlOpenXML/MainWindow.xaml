@@ -16,6 +16,10 @@
             Content="Probar crear tabla" />
         <Button
             HorizontalAlignment="Center"
+            Click="Button_Click_4"
+            Content="Generar documento" />
+        <Button
+            HorizontalAlignment="Center"
             Click="Button_Click_1"
             Content="Probar crear y guardar images" />
         <Button
