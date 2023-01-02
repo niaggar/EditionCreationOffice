@@ -703,7 +703,7 @@ namespace PruebaControlOpenXML
 
 
         #region Crear tablas
-        public Table CreateNewTable(List<string[]> datosTabla, bool haveBorder = true)
+        public Table CreateNewTable(List<string[]> datosTabla, bool haveBorder = true, string subtitle = "")
         {
             Table table = new Table(new TableProperties(
                 new TableWidth() { Width = "5000", Type = TableWidthUnitValues.Pct },
@@ -1183,83 +1183,63 @@ namespace PruebaControlOpenXML
 
         public string GetTOC(string title, int titleFontSize)
         {
-            return $@"<w:sdt>
-     <w:sdtPr>
-        <w:id w:val=""-493258456"" />
-        <w:docPartObj>
-           <w:docPartGallery w:val=""Table of Contents"" />
-           <w:docPartUnique />
-        </w:docPartObj>
-     </w:sdtPr>
-     <w:sdtEndPr>
+            return $@"<w:sdt xmlns:w='http://schemas.openxmlformats.org/wordprocessingml/2006/main'>
+  <w:sdtPr>
+    <w:docPartObj>
+      <w:docPartGallery w:val='Table of Contents'/>
+      <w:docPartUnique/>
+    </w:docPartObj>
+  </w:sdtPr>
+  <w:sdtEndPr>
+    <w:rPr>
+     <w:rFonts w:asciiTheme='minorHAnsi' w:cstheme='minorBidi' w:eastAsiaTheme='minorHAnsi' w:hAnsiTheme='minorHAnsi'/>
+     <w:color w:val='auto'/>
+     <w:sz w:val='22'/>
+     <w:szCs w:val='22'/>
+     <w:lang w:eastAsia='en-US'/>
+    </w:rPr>
+  </w:sdtEndPr>
+  <w:sdtContent>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val='TOCHeading'/>
+      </w:pPr>
+      <w:r>
+        <w:t>{title}</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val='TOC1'/>
+        <w:tabs>
+          <w:tab w:val='right' w:leader='dot'/>
+        </w:tabs>
         <w:rPr>
-           <w:rFonts w:asciiTheme=""minorHAnsi"" w:eastAsiaTheme=""minorHAnsi"" w:hAnsiTheme=""minorHAnsi"" w:cstheme=""minorBidi"" />
-           <w:b />
-           <w:bCs />
-           <w:noProof />
-           <w:color w:val=""auto"" />
-           <w:sz w:val=""22"" />
-           <w:szCs w:val=""22"" />
+          <w:noProof/>
         </w:rPr>
-     </w:sdtEndPr>
-     <w:sdtContent>
-        <w:p w:rsidR=""00095C65"" w:rsidRDefault=""00095C65"">
-           <w:pPr>
-              <w:pStyle w:val=""TOCHeading"" />
-              <w:jc w:val=""center"" /> 
-           </w:pPr>
-           <w:r>
-                <w:rPr>
-                  <w:b /> 
-                  <w:color w:val=""2E74B5"" w:themeColor=""accent1"" w:themeShade=""BF"" /> 
-                  <w:sz w:val=""{titleFontSize * 2}"" /> 
-                  <w:szCs w:val=""{titleFontSize * 2}"" /> 
-              </w:rPr>
-              <w:t>{title}</w:t>
-           </w:r>
-        </w:p>
-        <w:p w:rsidR=""00095C65"" w:rsidRDefault=""00095C65"">
-           <w:r>
-              <w:rPr>
-                 <w:b />
-                 <w:bCs />
-                 <w:noProof />
-              </w:rPr>
-              <w:fldChar w:fldCharType=""begin"" />
-           </w:r>
-           <w:r>
-              <w:rPr>
-                 <w:b />
-                 <w:bCs />
-                 <w:noProof />
-              </w:rPr>
-              <w:instrText xml:space=""preserve""> TOC \h \z \t ""tt1,1,tt2,2"" </w:instrText>
-           </w:r>
-           <w:r>
-              <w:rPr>
-                 <w:b />
-                 <w:bCs />
-                 <w:noProof />
-              </w:rPr>
-              <w:fldChar w:fldCharType=""separate"" />
-           </w:r>
-           <w:r>
-              <w:rPr>
-                 <w:noProof />
-              </w:rPr>
-              <w:t>No table of contents entries found.</w:t>
-           </w:r>
-           <w:r>
-              <w:rPr>
-                 <w:b />
-                 <w:bCs />
-                 <w:noProof />
-              </w:rPr>
-              <w:fldChar w:fldCharType=""end"" />
-           </w:r>
-        </w:p>
-     </w:sdtContent>
-  </w:sdt>";
+      </w:pPr>
+      <w:r>
+        <w:fldChar w:fldCharType='begin' w:dirty='true'/>
+      </w:r>
+      <w:r>
+        <w:instrText xml:space='preserve'>TOC \h \z \t ""tt1,1,tt2,2""</w:instrText>
+      </w:r>
+      <w:r>
+        <w:fldChar w:fldCharType='separate'/>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:r>
+        <w:rPr>
+          <w:b/>
+          <w:bCs/>
+          <w:noProof/>
+        </w:rPr>
+        <w:fldChar w:fldCharType='end'/>
+      </w:r>
+    </w:p>
+  </w:sdtContent>
+</w:sdt>";
         }
 
 

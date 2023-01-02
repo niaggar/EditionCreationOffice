@@ -35,7 +35,7 @@ namespace PruebaControlOpenXML
 
             // Create and add the child elements (properties of the style).
             BasedOn basedon1 = new BasedOn() { Val = "Normal" };
-            NextParagraphStyle nextParagraphStyle1 = new NextParagraphStyle() { Val = "Normal" };
+            NextParagraphStyle nextParagraphStyle1 = new NextParagraphStyle() { Val = "nn" };
             LinkedStyle linkedStyle1 = new LinkedStyle() { Val = "tt1Car" };
             PrimaryStyle primaryStyle = new PrimaryStyle();
             ParagraphProperties pprops = new ParagraphProperties();
@@ -91,7 +91,7 @@ namespace PruebaControlOpenXML
 
             // Create and add the child elements (properties of the style).
             BasedOn basedon2 = new BasedOn() { Val = "Normal" };
-            NextParagraphStyle nextParagraphStyle2 = new NextParagraphStyle() { Val = "Normal" };
+            NextParagraphStyle nextParagraphStyle2 = new NextParagraphStyle() { Val = "nn" };
             LinkedStyle linkedStyle2 = new LinkedStyle() { Val = "tt2Car" };
             PrimaryStyle primaryStyle2 = new PrimaryStyle();
             ParagraphProperties pprops2 = new ParagraphProperties();
@@ -147,7 +147,7 @@ namespace PruebaControlOpenXML
 
             // Create and add the child elements (properties of the style).
             BasedOn basedon3 = new BasedOn() { Val = "Normal" };
-            NextParagraphStyle nextParagraphStyle3 = new NextParagraphStyle() { Val = "Normal" };
+            NextParagraphStyle nextParagraphStyle3 = new NextParagraphStyle() { Val = "nn" };
             PrimaryStyle primaryStyle3 = new PrimaryStyle();
             ParagraphProperties pprops3 = new ParagraphProperties();
             SpacingBetweenLines space3 = new SpacingBetweenLines() { LineRule = LineSpacingRuleValues.Auto, Before = "160", After = "160" };
@@ -179,10 +179,124 @@ namespace PruebaControlOpenXML
             style3.Append(styleRunProperties3);
             #endregion
 
+            #region TOC normal
+            Style style4 = new Style();
+            style4.InnerXml = @"
+            <w:style w:type='paragraph' w:styleId='TOCHeading' xmlns:w='http://schemas.openxmlformats.org/wordprocessingml/2006/main'>
+                <w:name w:val='TOC Heading'/>
+                <w:basedOn w:val='Heading1'/>
+                <w:next w:val='Normal'/>
+                <w:uiPriority w:val='39'/>
+                <w:semiHidden/>
+                <w:unhideWhenUsed/>
+                <w:qFormat/>
+                <w:pPr>
+                    <w:jc w:val=""center"" />
+                    <w:outlineLvl w:val='9'/>
+                </w:pPr>
+                <w:rPr>
+                    <w:rFonts w:ascii=""Arial"" w:hAnsi=""Arial"" w:cs=""Arial"" />
+                    <w:b />
+                    <w:color w:val=""000000"" />
+                    <w:sz w:val=""24"" />
+                </w:rPr>
+            </w:style>";
+
+            Style style5 = new Style();
+            style5.InnerXml = @"
+            <w:style w:type='paragraph' w:styleId='TOC1' xmlns:w='http://schemas.openxmlformats.org/wordprocessingml/2006/main'>
+                <w:name w:val='toc 1'/>
+                <w:basedOn w:val='Normal'/>
+                <w:next w:val='Normal'/>
+                <w:autoRedefine/>
+                <w:uiPriority w:val='39'/>
+                <w:unhideWhenUsed/>
+                <w:pPr>
+                    <w:ind w:left=""0"" w:right=""0"" w:hanging=""0"" />  
+                    <w:spacing w:after='100'/>
+                </w:pPr>
+                <w:rPr>
+                    <w:rFonts w:ascii=""Arial"" w:hAnsi=""Arial"" w:cs=""Arial"" />
+                    <w:b />
+                    <w:color w:val=""#000000"" />
+                    <w:sz w:val=""20"" />
+                </w:rPr>
+            </w:style>";
+
+            Style style6 = new Style();
+            style6.InnerXml = @"
+            <w:style w:type='paragraph' w:styleId='TOC2' xmlns:w='http://schemas.openxmlformats.org/wordprocessingml/2006/main'>
+                <w:name w:val='toc 2'/>
+                <w:basedOn w:val='Normal'/>
+                <w:next w:val='Normal'/>
+                <w:autoRedefine/>
+                <w:uiPriority w:val='39'/>
+                <w:unhideWhenUsed/>
+                <w:pPr>
+                    <w:ind w:left=""244"" w:right=""0"" w:hanging=""0"" />  
+                    <w:spacing w:after='100'/>
+                </w:pPr>
+                <w:rPr>
+                    <w:rFonts w:ascii=""Arial"" w:hAnsi=""Arial"" w:cs=""Arial"" />
+                    <w:b />
+                    <w:color w:val=""#000000"" />
+                    <w:sz w:val=""20"" />
+                </w:rPr>
+            </w:style>";
+
+
+            Style style7 = new Style();
+            style7.InnerXml = @"
+            <w:style w:type='character' w:styleId='Hyperlink' xmlns:w='http://schemas.openxmlformats.org/wordprocessingml/2006/main'>
+                <w:name w:val='Hyperlink'/>
+                <w:basedOn w:val='DefaultParagraphFont'/>
+                <w:uiPriority w:val='99'/>
+                <w:unhideWhenUsed/>
+                <w:rPr>
+                    <w:rFonts w:ascii=""Arial"" w:hAnsi=""Arial"" w:cs=""Arial"" />
+                    <w:b />
+                    <w:color w:val=""#000000"" />
+                    <w:sz w:val=""20"" />
+                </w:rPr>
+            </w:style>";
+            #endregion
+
+            #region Caption
+            Style style8 = new Style();
+            style8.InnerXml = @"
+            <w:style w:type=""paragraph"" w:styleId=""Caption"">
+                <w:name w:val=""Caption"" />
+                <w:aliases
+                w:val=""EpiTabla,Epígrafe3,Epígrafe1-Figura,Epígrafe Car1,IEB Tabla eprigrafe,Car,Epigrafe,Epígrafe Car21,Descripción1,Foto"" />
+                <w:basedOn w:val=""Normal"" />
+                <w:next w:val=""Normal"" />
+                <w:link w:val=""DescripcinCar1"" />
+                <w:qFormat />
+                <w:rsid w:val=""009A120D"" />
+                <w:pPr>
+                    <w:keepNext />
+                    <w:widowControl w:val=""0"" />
+                    <w:spacing w:before=""60"" />
+                    <w:jc w:val=""center"" />
+                </w:pPr>
+                <w:rPr>
+                    <w:b />
+                    <w:sz w:val=""20"" />
+                    <w:lang w:val=""es-CL"" />
+                </w:rPr>
+            </w:style>";
+
+            #endregion
+
 
             styles.Append(style);
             styles.Append(style2);
             styles.Append(style3);
+            styles.Append(style4);
+            styles.Append(style5);
+            styles.Append(style6);
+            styles.Append(style7);
+            styles.Append(style8);
         }
 
         public static StyleDefinitionsPart AddStylesPartToPackage(Document doc)

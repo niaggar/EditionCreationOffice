@@ -638,24 +638,15 @@ namespace PruebaControlOpenXML
             settingsPart.Settings.Append(new UpdateFieldsOnOpen() { Val = true });
             #endregion
 
-
-
-
-
-
+            #region Estilos
             StyleDefinitionsPart part = doc.MainDocumentPart.StyleDefinitionsPart;
             if (part == null) part = StyleGenerator.AddStylesPartToPackage(doc);
             StyleGenerator.CreateAndAddParagraphStyle(part);
-
-
-
-            var numbering = mainpart.AddNewPart<NumberingDefinitionsPart>();
-            var numberingId = mainpart.GetIdOfPart(numbering);
-
-
-
+            #endregion
 
             #region Create Numberingo
+            var numbering = mainpart.AddNewPart<NumberingDefinitionsPart>();
+
             Numbering globalNumbering = new Numbering();
             globalNumbering.AddNamespaceDeclaration("wpc", "http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas");
             globalNumbering.AddNamespaceDeclaration("cx", "http://schemas.microsoft.com/office/drawing/2014/chartex");
@@ -690,8 +681,6 @@ namespace PruebaControlOpenXML
             AbstractNumDefinitionName abstractNumDefinitionName1 = new AbstractNumDefinitionName() { Val = "TitlesNumberingDEFAULT" };
 
 
-
-
             var level1 = new Level() { LevelIndex = 0 };
 
             var pPr1 = new PreviousParagraphProperties();
@@ -708,9 +697,6 @@ namespace PruebaControlOpenXML
             level1.Append(new ParagraphStyleIdInLevel() { Val = "tt1" });
             level1.Append(pPr1);
             level1.Append(rPr1);
-
-
-
 
 
             var level2 = new Level() { LevelIndex = 1 };
@@ -774,6 +760,8 @@ namespace PruebaControlOpenXML
 
 
 
+
+
             #region Seccion 1
             #region Crear seccion inicial
             // Crear seccion
@@ -802,6 +790,46 @@ namespace PruebaControlOpenXML
             body.AppendChild(c.CreateNewParagraph("CRITERIOS Y ANÁLISIS DE DISEÑO", ParagraphTypes.Heading2));
             body.AppendChild(c.CreateNewParagraph("CRITERIOS Y ANÁLISIS DE DISEÑO", ParagraphTypes.Heading2));
             body.AppendChild(c.CreateNewParagraph("OBJETO", ParagraphTypes.Heading1));
+
+
+            body.AppendChild(c.CreateNewParagraph("Tabla 1 Materiales de los pórticos", ParagraphTypes.Heading1));
+
+
+            var p = new Paragraph();
+
+            var run = new Run();
+            var runStyle = new StyleRunProperties();
+            var paragraphStyle = new ParagraphProperties();
+
+            paragraphStyle.ParagraphStyleId = new ParagraphStyleId() { Val = "Caption" };
+            abs.AppendChild(p);
+
+
+
+
+            //p.InnerXml = $@"
+            //<w:p>
+            //    <w:pPr>
+            //        <w:pStyle w:val=""caption"" />
+            //        <w:keepNext />
+            //    </w:pPr>
+            //    <w:r>
+            //        <w:t xml:space=""preserve"">Table </w:t>
+            //    </w:r>
+            //    <w:fldSimple w:instr="" SEQ Table \* ARABIC "">
+            //    </w:fldSimple>
+            //    <w:r>
+            //        <w:t xml:space=""preserve"">. </w:t>
+            //    </w:r>
+            //    <w:proofErr w:type=""spellStart"" />
+            //    <w:r>
+            //        <w:t>abcdefghijk</w:t>
+            //    </w:r>
+            //    <w:proofErr w:type=""spellEnd"" />
+            //</w:p>";
+            body.AppendChild(p);
+
+            body.AppendChild(c.CreateNewTable(DatosPruebaV1(), haveBorder: true));
             #endregion
 
             body.AppendChild(pSection1);
