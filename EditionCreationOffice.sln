@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControlWord", "PruebaContro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControlOpenXML", "PruebaControlOpenXML\ControlOpenXML.csproj", "{73AC1EE8-B4CB-4475-8576-6ABE3F0E2BB6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DIS.Reportes.Automatizados", "DIS.Reportes.Automatizados\DIS.Reportes.Automatizados.csproj", "{34BE1570-6AC0-47C2-95B7-D9CEB0B077C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApp1", "WpfApp1\WpfApp1.csproj", "{2252D4F0-017D-4D38-AAF1-66E5DC4806B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{73AC1EE8-B4CB-4475-8576-6ABE3F0E2BB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73AC1EE8-B4CB-4475-8576-6ABE3F0E2BB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73AC1EE8-B4CB-4475-8576-6ABE3F0E2BB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34BE1570-6AC0-47C2-95B7-D9CEB0B077C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34BE1570-6AC0-47C2-95B7-D9CEB0B077C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34BE1570-6AC0-47C2-95B7-D9CEB0B077C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34BE1570-6AC0-47C2-95B7-D9CEB0B077C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2252D4F0-017D-4D38-AAF1-66E5DC4806B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2252D4F0-017D-4D38-AAF1-66E5DC4806B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2252D4F0-017D-4D38-AAF1-66E5DC4806B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2252D4F0-017D-4D38-AAF1-66E5DC4806B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -3,15 +3,50 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PruebaControlOpenXML
+namespace DIS.Reportes.Automatizados.Utils
 {
-    public class StyleGenerator
+    public class StylesController
     {
-        public StyleGenerator() { }
+        #region Comandos para personalizar textos en tablas
+        public static string SetBold()
+        {
+            return "[N]";
+        }
+
+        public static string SetItalic()
+        {
+            return "[I]";
+        }
+
+        public static string SetUnderline()
+        {
+            return "[U]";
+        }
+
+        public static string SetFontSize(int size)
+        {
+            return $"[F:{size}]";
+        }
+
+        public static string SetFontColor(string color)
+        {
+            return $"[FC:{color}]";
+        }
+
+        public static string SetCellColor(string color)
+        {
+            return $"[CC:{color}]";
+        }
+
+        public static string SetLeftAligment()
+        {
+            return "¬";
+        }
+        #endregion
+
 
         public static void CreateAndAddParagraphStyle(StyleDefinitionsPart styleDefinitionsPart)
         {
@@ -29,21 +64,22 @@ namespace PruebaControlOpenXML
             {
                 Type = StyleValues.Paragraph,
                 StyleId = "Ttulo1",
-                CustomStyle = true,
+                CustomStyle = false,
                 Default = false
             };
 
             // Create and add the child elements (properties of the style).
             BasedOn basedon1 = new BasedOn() { Val = "Normal" };
             NextParagraphStyle nextParagraphStyle1 = new NextParagraphStyle() { Val = "nn" };
+            Aliases aliases1 = new Aliases() { Val = "UCI Header 1,CONT,CVRD,Título 0,Título 1_HTA,Edgar 1,oscar1,GT Título 1,HT-IF Título 1" };
             LinkedStyle linkedStyle1 = new LinkedStyle() { Val = "Ttulo1Car" };
             PrimaryStyle primaryStyle = new PrimaryStyle();
             ParagraphProperties pprops = new ParagraphProperties();
             NumberingProperties nprop = new NumberingProperties();
             SpacingBetweenLines space1 = new SpacingBetweenLines() { LineRule = LineSpacingRuleValues.Auto, Before = "240", After = "240" };
             Justification just1 = new Justification() { Val = JustificationValues.Both };
-            OutlineLevel outl1= new OutlineLevel() { Val = 0 };
-            StyleName styleName1 = new StyleName() { Val = "Ttulo1" };
+            OutlineLevel outl1 = new OutlineLevel() { Val = 0 };
+            StyleName styleName1 = new StyleName() { Val = "heading 1" };
 
             nprop.Append(new NumberingId() { Val = 15 });
             nprop.Append(new NumberingLevelReference() { Val = 0 });
@@ -58,6 +94,7 @@ namespace PruebaControlOpenXML
             style.Append(primaryStyle);
             style.Append(pprops);
             style.Append(styleName1);
+            style.Append(aliases1);
 
 
             // Create the StyleRunProperties object and specify some of the run properties.
@@ -85,7 +122,7 @@ namespace PruebaControlOpenXML
             {
                 Type = StyleValues.Paragraph,
                 StyleId = "Ttulo2",
-                CustomStyle = true,
+                CustomStyle = false,
                 Default = false
             };
 
@@ -94,9 +131,10 @@ namespace PruebaControlOpenXML
             NextParagraphStyle nextParagraphStyle2 = new NextParagraphStyle() { Val = "nn" };
             LinkedStyle linkedStyle2 = new LinkedStyle() { Val = "Ttulo2Car" };
             PrimaryStyle primaryStyle2 = new PrimaryStyle();
+            Aliases aliases2 = new Aliases() { Val = "GT Título 2,HT-IF Título 2" };
             ParagraphProperties pprops2 = new ParagraphProperties();
             NumberingProperties nprop2 = new NumberingProperties();
-            StyleName styleName2 = new StyleName() { Val = "Ttulo2" };
+            StyleName styleName2 = new StyleName() { Val = "heading 2" };
             SpacingBetweenLines space2 = new SpacingBetweenLines() { LineRule = LineSpacingRuleValues.Auto, Before = "240", After = "120" };
             Justification just2 = new Justification() { Val = JustificationValues.Both };
             OutlineLevel outl2 = new OutlineLevel() { Val = 1 };
@@ -114,6 +152,7 @@ namespace PruebaControlOpenXML
             style2.Append(primaryStyle2);
             style2.Append(pprops2);
             style2.Append(styleName2);
+            style2.Append(aliases2);
 
 
             // Create the StyleRunProperties object and specify some of the run properties.
@@ -298,23 +337,12 @@ namespace PruebaControlOpenXML
             styles.Append(style8);
         }
 
-        public static StyleDefinitionsPart AddStylesPartToPackage(Document doc)
-        {
-            StyleDefinitionsPart part;
-            part = doc.MainDocumentPart.AddNewPart<StyleDefinitionsPart>();
-
-            Styles root = new Styles();
-            root.Save(part);
-
-            return part;
-        }
-
         public static void AddNumberingPart(Document doc)
         {
             var numbering = doc.MainDocumentPart.AddNewPart<NumberingDefinitionsPart>();
 
             Numbering globalNumbering = new Numbering();
-            
+
             #region Namespaces
             globalNumbering.AddNamespaceDeclaration("wpc", "http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas");
             globalNumbering.AddNamespaceDeclaration("cx", "http://schemas.microsoft.com/office/drawing/2014/chartex");
@@ -425,6 +453,17 @@ namespace PruebaControlOpenXML
 
             // Save the created list
             numbering.Numbering = globalNumbering;
+        }
+
+        public static StyleDefinitionsPart AddStylesPartToPackage(Document doc)
+        {
+            StyleDefinitionsPart part;
+            part = doc.MainDocumentPart.AddNewPart<StyleDefinitionsPart>();
+
+            Styles root = new Styles();
+            root.Save(part);
+
+            return part;
         }
     }
 }

@@ -237,5 +237,25 @@ namespace PruebaControlOpenXML
             wordDocument.Close(false);
             appWord.Quit();
         }
+
+
+        public static (double width, double height) GetUtilSpace(PageSizeTypes pageSizeTypes, (double top, double right, double bottom, double left) margin, PageOrientationValues pageOrientation)
+        {
+            double width, height;
+            var paperSize = GetPaperSize(pageSizeTypes);
+
+            if (pageOrientation == PageOrientationValues.Portrait)
+            {
+                width = paperSize.width - margin.right - margin.left;
+                height = paperSize.height - margin.bottom - margin.top;
+            }
+            else
+            {
+                width = paperSize.height - margin.top - margin.bottom;
+                height = paperSize.width - margin.left- margin.right;
+            }
+
+            return (width, height);
+        }
     }
 }

@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using DIS.Reportes.Automatizados.DocTemplates;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -28,6 +29,8 @@ namespace PruebaControlOpenXML
         public MainWindow()
         {
             InitializeComponent();
+
+            Template1.Create();
         }
 
         public string GetSaveRoute()
@@ -262,40 +265,45 @@ namespace PruebaControlOpenXML
         #region Generar datos de prueba
         public List<string[]> DatosPruebaV1()
         {
-            var datos = new List<string[]>();
-
-            datos.Add(new string[3]
+            var datos = new List<string[]>
+            {
+                new string[3]
+            {
+                "ÍTEM", $"DESCRIPCIÓN", $"CRITERIO"
+            },
+                new string[3]
             {
                 "Elemento", $"Perfiles{WordUtils.SetLeftAligment()}", $"ASTM A-572 Gr50{WordUtils.SetLeftAligment()}"
-            });
-            datos.Add(new string[3]
+            },
+                new string[3]
             {
                 "|", $"Platinas{WordUtils.SetLeftAligment()}", $"ASTM A-36{WordUtils.SetLeftAligment()}"
-            });
-            datos.Add(new string[3]
+            },
+                new string[3]
             {
                 "|", $"Soldadura{WordUtils.SetLeftAligment()}", $"De acuerdo AWS D1.1 y D1.3.\r\nElectrodos E70-XX{WordUtils.SetLeftAligment()}"
-            });
-            datos.Add(new string[3]
+            },
+                new string[3]
             {
                 "|", $"Tornillos{WordUtils.SetLeftAligment()}", $"ASTM A-394 TIPO 0{WordUtils.SetLeftAligment()}"
-            });
-            datos.Add(new string[3]
+            },
+                new string[3]
             {
                 "|", $"Pernos de anclaje{WordUtils.SetLeftAligment()}", $"F1554 Gr 55{WordUtils.SetLeftAligment()}"
-            });
-            datos.Add(new string[3]
+            },
+                new string[3]
             {
                 "|", $"Arandelas{WordUtils.SetLeftAligment()}", $"ASTM F-436{WordUtils.SetLeftAligment()}"
-            });
-            datos.Add(new string[3]
+            },
+                new string[3]
             {
                 "|", $"Tuercas{WordUtils.SetLeftAligment()}", $"ASTM A-563{WordUtils.SetLeftAligment()}"
-            });
-            datos.Add(new string[3]
+            },
+                new string[3]
             {
-                "|", $"Galvanización{WordUtils.SetLeftAligment()}", $"ASTM A-123{WordUtils.SetLeftAligment()}"
-            });
+                "|", $"Galvanización{WordUtils.SetLeftAligment()}", $"ASTM A-123, ASTM A-153{WordUtils.SetLeftAligment()}"
+            }
+            };
 
 
             return datos;
@@ -628,14 +636,29 @@ namespace PruebaControlOpenXML
 
 
             #region Crear Tabla de contenidos
-            var sdtBlock = new SdtBlock();
-            sdtBlock.InnerXml = c.GetTOC("Contenido", 16);
-            doc.MainDocumentPart.Document.Body.AppendChild(sdtBlock);
+            #region Crear seccion inicial
+            // Crear seccion
+            var pStoc = c.CreateNewSection();
+            var stocProp = pStoc.Descendants<SectionProperties>().FirstOrDefault();
 
+            // Agregar header y footer de seccion
+            stocProp.AppendChild(new HeaderReference() { Type = HeaderFooterValues.Default, Id = globalHeaderPartId });
+            stocProp.AppendChild(new FooterReference() { Type = HeaderFooterValues.Default, Id = globalFooterPartId });
+
+            // Establecer tamaños
+            WordUtils.SetPageSize(stocProp, documentSize, PageOrientationValues.Portrait);
+            WordUtils.SetMarginSize(stocProp, documentMargins, PageOrientationValues.Portrait);
+            #endregion
+
+            var sdtBlock = new SdtBlock();
+            sdtBlock.InnerXml = c.CreateTOC("TABLA DE CONTENIDO");
+            doc.MainDocumentPart.Document.Body.AppendChild(sdtBlock);
 
             var settingsPart = doc.MainDocumentPart.AddNewPart<DocumentSettingsPart>();
             settingsPart.Settings = new Settings { BordersDoNotSurroundFooter = new BordersDoNotSurroundFooter() { Val = true } };
             settingsPart.Settings.Append(new UpdateFieldsOnOpen() { Val = true });
+
+            body.AppendChild(pStoc);
             #endregion
 
             #region Estilos
@@ -645,117 +668,7 @@ namespace PruebaControlOpenXML
             #endregion
 
             #region Create Numberingo
-            var numbering = mainpart.AddNewPart<NumberingDefinitionsPart>();
-
-            Numbering globalNumbering = new Numbering();
-            globalNumbering.AddNamespaceDeclaration("wpc", "http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas");
-            globalNumbering.AddNamespaceDeclaration("cx", "http://schemas.microsoft.com/office/drawing/2014/chartex");
-            globalNumbering.AddNamespaceDeclaration("cx1", "http://schemas.microsoft.com/office/drawing/2015/9/8/chartex");
-            globalNumbering.AddNamespaceDeclaration("cx2", "http://schemas.microsoft.com/office/drawing/2015/10/21/chartex");
-            globalNumbering.AddNamespaceDeclaration("mc", "http://schemas.openxmlformats.org/markup-compatibility/2006");
-            globalNumbering.AddNamespaceDeclaration("o", "urn:schemas-microsoft-com:office:office");
-            globalNumbering.AddNamespaceDeclaration("r", "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
-            globalNumbering.AddNamespaceDeclaration("m", "http://schemas.openxmlformats.org/officeDocument/2006/math");
-            globalNumbering.AddNamespaceDeclaration("v", "urn:schemas-microsoft-com:vml");
-            globalNumbering.AddNamespaceDeclaration("wp14", "http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing");
-            globalNumbering.AddNamespaceDeclaration("wp", "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing");
-            globalNumbering.AddNamespaceDeclaration("w10", "urn:schemas-microsoft-com:office:word");
-            globalNumbering.AddNamespaceDeclaration("w", "http://schemas.openxmlformats.org/wordprocessingml/2006/main");
-            globalNumbering.AddNamespaceDeclaration("w14", "http://schemas.microsoft.com/office/word/2010/wordml");
-            globalNumbering.AddNamespaceDeclaration("w15", "http://schemas.microsoft.com/office/word/2012/wordml");
-            globalNumbering.AddNamespaceDeclaration("w16se", "http://schemas.microsoft.com/office/word/2015/wordml/symex");
-            globalNumbering.AddNamespaceDeclaration("wpg", "http://schemas.microsoft.com/office/word/2010/wordprocessingGroup");
-            globalNumbering.AddNamespaceDeclaration("wpi", "http://schemas.microsoft.com/office/word/2010/wordprocessingInk");
-            globalNumbering.AddNamespaceDeclaration("wne", "http://schemas.microsoft.com/office/word/2006/wordml");
-            globalNumbering.AddNamespaceDeclaration("wps", "http://schemas.microsoft.com/office/word/2010/wordprocessingShape");
-
-
-
-
-            var abs = new AbstractNum() { AbstractNumberId = 0 };
-
-
-            Nsid nsid3 = new Nsid() { Val = "70913756" };
-            MultiLevelType multiLevelType3 = new MultiLevelType() { Val = MultiLevelValues.Multilevel };
-            TemplateCode templateCode3 = new TemplateCode() { Val = "624EA66A" };
-            AbstractNumDefinitionName abstractNumDefinitionName1 = new AbstractNumDefinitionName() { Val = "TitlesNumberingDEFAULT" };
-
-
-            var level1 = new Level() { LevelIndex = 0 };
-
-            var pPr1 = new PreviousParagraphProperties();
-            pPr1.Append(new Tabs(new TabStop() { Val = TabStopValues.Number, Position = 0 }));
-            pPr1.Append(new Indentation() { Left = "432", Hanging = "432" });
-
-            var rPr1 = new NumberingSymbolRunProperties();
-            rPr1.Append(new RunFonts() { Hint = FontTypeHintValues.Default });
-
-            level1.Append(new StartNumberingValue() { Val = 1 });
-            level1.Append(new NumberingFormat() { Val = NumberFormatValues.Decimal });
-            level1.Append(new LevelText() { Val = "%1" });
-            level1.Append(new LevelJustification() { Val = LevelJustificationValues.Left });
-            level1.Append(new ParagraphStyleIdInLevel() { Val = "tt1" });
-            level1.Append(pPr1);
-            level1.Append(rPr1);
-
-
-            var level2 = new Level() { LevelIndex = 1 };
-
-            var pPr2 = new PreviousParagraphProperties();
-            pPr2.Append(new Tabs(new TabStop() { Val = TabStopValues.Number, Position = 0 }));
-            pPr2.Append(new Indentation() { Left = "576", Hanging = "576" });
-
-            var rPr2 = new NumberingSymbolRunProperties();
-            rPr2.Append(new RunFonts() { Hint = FontTypeHintValues.Default });
-
-            level2.Append(new NumberingFormat() { Val = NumberFormatValues.Decimal });
-            level2.Append(new ParagraphStyleIdInLevel() { Val = "tt2" });
-            level2.Append(new StartNumberingValue() { Val = 1 });
-            level2.Append(new LevelText() { Val = "%1.%2" });
-            level2.Append(new LevelJustification() { Val = LevelJustificationValues.Left });
-            level2.Append(pPr2);
-            level2.Append(rPr2);
-
-
-            abs.Append(nsid3);
-            abs.Append(multiLevelType3);
-            abs.Append(templateCode3);
-            abs.Append(abstractNumDefinitionName1);
-            abs.Append(level1);
-            abs.Append(level2);
-
-            for (int i = 2; i < 9; i++)
-            {
-                var level = new Level() { LevelIndex = i };
-
-                var pPr = new PreviousParagraphProperties();
-                pPr.Append(new Tabs(new TabStop() { Val = TabStopValues.Number, Position = 0 }));
-                pPr.Append(new Indentation() { Left = $"{577 + (144 * (i - 1))}", Hanging = $"{577 + (144 * (i - 1))}" });
-
-                var rPr = new NumberingSymbolRunProperties();
-                rPr.Append(new RunFonts() { Hint = FontTypeHintValues.Default });
-
-                level.Append(new NumberingFormat() { Val = NumberFormatValues.Decimal });
-                level.Append(new ParagraphStyleIdInLevel() { Val = $"tt{i+1}" });
-                level.Append(new StartNumberingValue() { Val = 1 });
-                level.Append(new LevelText() { Val = $"%{i}" });
-                level.Append(new LevelJustification() { Val = LevelJustificationValues.Left });
-                level.Append(pPr);
-                level.Append(rPr);
-
-                abs.Append(level);
-            }
-
-
-            NumberingInstance numberingInstance = new NumberingInstance() { NumberID = 1 };
-            numberingInstance.Append(new AbstractNumId() { Val = 0 });
-            NumberingInstance numberingInstance2 = new NumberingInstance() { NumberID = 15 };
-            numberingInstance.Append(new AbstractNumId() { Val = 0 });
-
-            globalNumbering.Append(abs);
-            globalNumbering.Append(numberingInstance);
-            globalNumbering.Append(numberingInstance2);
-            numbering.Numbering = globalNumbering;
+            
             #endregion
 
 
@@ -777,59 +690,38 @@ namespace PruebaControlOpenXML
             WordUtils.SetMarginSize(secProps1, documentMargins, PageOrientationValues.Portrait);
             #endregion
 
+
+
+            #region PORTADA
+
+            #endregion
+
+
             #region Contenido
             body.AppendChild(c.CreateNewParagraph("OBJETO", ParagraphTypes.Heading1));
-            body.AppendChild(c.CreateNewParagraph("Este documento presentar los criterios generales empleados para el análisis y el diseño estructural de los pórticos correspondientes al proyecto Segundo Transformador 500/230/34,5 kV – 360 MVA en la subestación Ocaña 500/230 kV, definido en el “Plan de Expansión de Referencia Generación – Transmisión 2015-2029”. La subestación está localizada en el municipio de Ocaña, departamento de Norte de Santander.", ParagraphTypes.Normal));
-            body.AppendChild(c.CreateNewParagraph("OBJETO", ParagraphTypes.Heading1));
-            body.AppendChild(c.CreateNewParagraph("Finalmente se presentan los resultados del análisis, el diseño usando el software SAP 2000 y las verificaciones ante las solicitaciones más críticas generadas por las combinaciones de carga.", ParagraphTypes.Normal));
-            body.AppendChild(c.CreateNewParagraph("CRITERIOS Y ANÁLISIS DE DISEÑO", ParagraphTypes.Heading2));
-            body.AppendChild(c.CreateNewParagraph("El diseño de las estructuras metálicas se realizó con base a las especificaciones de las guías de diseño, distancias eléctricas y cargas de conexión, presentadas en los documentos de referencia [1] y [9] y en lo indicado en la referencia [2], considerando las relaciones de esbeltez y los espesores mínimos de los elementos.", ParagraphTypes.Normal));
-            body.AppendChild(c.CreateNewParagraph("OBJETO", ParagraphTypes.Heading1));
-            body.AppendChild(c.CreateNewParagraph("OBJETO", ParagraphTypes.Heading1));
-            body.AppendChild(c.CreateNewParagraph("CRITERIOS Y ANÁLISIS DE DISEÑO", ParagraphTypes.Heading2));
-            body.AppendChild(c.CreateNewParagraph("CRITERIOS Y ANÁLISIS DE DISEÑO", ParagraphTypes.Heading2));
-            body.AppendChild(c.CreateNewParagraph("CRITERIOS Y ANÁLISIS DE DISEÑO", ParagraphTypes.Heading2));
-            body.AppendChild(c.CreateNewParagraph("OBJETO", ParagraphTypes.Heading1));
-
-
-            body.AppendChild(c.CreateNewParagraph("Tabla 1 Materiales de los pórticos", ParagraphTypes.Heading1));
-
-
-            var p = new Paragraph();
-
-            var run = new Run();
-            var runStyle = new StyleRunProperties();
-            var paragraphStyle = new ParagraphProperties();
-
-            paragraphStyle.ParagraphStyleId = new ParagraphStyleId() { Val = "Caption" };
-            abs.AppendChild(p);
-
-
-
-
-            //p.InnerXml = $@"
-            //<w:p>
-            //    <w:pPr>
-            //        <w:pStyle w:val=""caption"" />
-            //        <w:keepNext />
-            //    </w:pPr>
-            //    <w:r>
-            //        <w:t xml:space=""preserve"">Table </w:t>
-            //    </w:r>
-            //    <w:fldSimple w:instr="" SEQ Table \* ARABIC "">
-            //    </w:fldSimple>
-            //    <w:r>
-            //        <w:t xml:space=""preserve"">. </w:t>
-            //    </w:r>
-            //    <w:proofErr w:type=""spellStart"" />
-            //    <w:r>
-            //        <w:t>abcdefghijk</w:t>
-            //    </w:r>
-            //    <w:proofErr w:type=""spellEnd"" />
-            //</w:p>";
-            body.AppendChild(p);
-
-            body.AppendChild(c.CreateNewTable(DatosPruebaV1(), haveBorder: true));
+            body.AppendChild(c.CreateNewParagraph("Presentar los procedimientos, criterios y resultados de los análisis efectuados para el diseño estructural de los pórticos metálicos requeridos para el cambio rápido del nuevo reactor de repuesto de 12.5 Mvar que será instalado en la subestación Banadía 230 kV, ubicada en el municipio de Saravena, en el departamento de Arauca.", ParagraphTypes.Normal));
+            body.AppendChild(c.CreateNewParagraph("ALCANCE", ParagraphTypes.Heading1));
+            body.AppendChild(c.CreateNewParagraph("En los siguientes capítulos se detallarán los procedimientos, criterios y resultados de los análisis efectuados para el diseño de la estructura metálica de los pórticos. Se incluye una descripción de las cargas aplicadas producto del peso de los equipos, cables, y de las acciones ambientales que inciden directamente sobre las estructuras metálicas. Además, se presentan los resultados del análisis y diseño realizado usando el software SAP2000, para cada uno de los elementos que conforman las estructuras atendiendo las solicitaciones más desfavorables que exijan las distintas combinaciones de carga.", ParagraphTypes.Normal));
+            body.AppendChild(c.CreateNewParagraph("Los diseños han sido realizados teniendo en cuenta todos los requerimientos de las especificaciones técnicas del proyecto [10] y [2]. Los resultados del diseño se ilustran en el plano “CO-RBAN-14113-S-01-K1525: Planos de diseño estructuras metálicas de pórticos”, en dicho plano se presenta la guía para la fabricación de las estructuras.", ParagraphTypes.Normal));
+            body.AppendChild(c.CreateNewParagraph("DESCRIPCIÓN DE LOS PORTICOS", ParagraphTypes.Heading1));
+            body.AppendChild(c.CreateNewParagraph("Los pórticos se diseñan como estructuras en celosía con diagonales, estos elementos soportan en la parte superior las cargas de templas y equipos dependiendo de la configuración del sistema. Además, los pórticos se encargan de transmitir las solicitaciones a la fundación y posteriormente al suelo.", ParagraphTypes.Normal));
+            body.AppendChild(c.CreateNewParagraph("ESPECIFICACIONES DE LOS MATERIALES", ParagraphTypes.Heading1));
+            body.AppendChild(c.CreateNewTable(DatosPruebaV1()));
+            body.AppendChild(c.CreateNewParagraph("CRITERIOS DE DISEÑO", ParagraphTypes.Heading1));
+            body.AppendChild(c.CreateNewParagraph("El diseño de la estructura metálica para los pórticos se lleva a cabo teniendo en cuenta los criterios de diseño de estructuras metálicas [10], documento en el que se referencian las especificaciones de los planos del fabricante de los equipos, la geometría básica, distancias eléctricas, y cargas de conexión.", ParagraphTypes.Normal));
+            body.AppendChild(c.CreateNewParagraph("El análisis estructural se realizó en el software SAP2000, versión 24.0.0, mediante un modelo tridimensional, en el cual, la estructura está idealizada como un conjunto de celosías planas, con una configuración de diagonales tipo “X”.", ParagraphTypes.Normal));
+            body.AppendChild(c.CreateNewParagraph("Para el estado límite de resistencia, el diseño de los elementos se realizó con la aplicación IEB “Diseño de Estructura Metálica de pórticos y Equipos”, la cual con base en la información de entrada (resultados del SAP 2000), realiza el diseño por compresión, tracción, flexión, la interacción entre estas solicitaciones y el diseño de las conexiones para la cantidad mínima requerida de pernos.", ParagraphTypes.Normal));
+            body.AppendChild(c.CreateNewParagraph("La determinación de los esfuerzos máximos a compresión, tensión, flexión, cortante y aplastamiento se hace siguiendo los lineamientos de las normas AISC 360 – 16 (American Institute of Steel Construction), referencia [11], y ASCE 10-15 (American Society of Civil Engineers) “Design of Latticed Steel Transmission Structures” referencia [12] y siguiendo las recomendaciones del manual ASCE N°52 “Guide for Design of Steel Transmission Towers”, referencia [13]; con ayuda del programa SAP2000.", ParagraphTypes.Normal));
+            body.AppendChild(c.CreateNewParagraph("Para la definición de los elementos metálicos los límites de las relaciones de esbeltez serán los presentados en la Tabla 2:", ParagraphTypes.Normal));
+            body.AppendChild(c.CreateNewParagraph("CARGAS", ParagraphTypes.Heading1));
+            body.AppendChild(c.CreateNewParagraph("Para el diseño de la estructura se considera el peso propio entre las cargas actuantes. En las cargas de diseño presentadas en los planos no se incluyen factores de sobrecarga, por lo tanto, en el análisis de la estructura metálica realizado se incluyen estos factores.", ParagraphTypes.Normal));
+            body.AppendChild(c.CreateNewParagraph("Las cargas sobre los pórticos y las dimensiones generales son tomadas de los documentos de referencia del [20] al [22].", ParagraphTypes.Normal));
+            body.AppendChild(c.CreateNewParagraph("PESO PROPIO DE LA ESTRUCTURA", ParagraphTypes.Heading2));
+            body.AppendChild(c.CreateNewParagraph("Cargas debidas al peso de la estructura metálica, cables, templas, aisladores, herrajes, accesorios, y todos los elementos que componen el conjunto analizado. Se afecta en un 20% adicional para considerar el peso de los elementos estructural no modelados tales como: platinas, pernos, tuercas, arandelas, galvanizado, etc.", ParagraphTypes.Normal));
+            body.AppendChild(c.CreateNewParagraph("CARGAS DE CONEXIÓN", ParagraphTypes.Heading2));
+            body.AppendChild(c.CreateNewParagraph("Se refiere a las tensiones mecánicas y cargas de cortocircuito. Considerando las tensiones mecánicas, esta es aplicable a barraje flexible en templas, barras, cable guardas, conexión entre equipos, etc. Metodología según Overhead Power Lines, referencia [15]. Flecha máxima para condición EDS del barraje del 3%.", ParagraphTypes.Normal));
+            body.AppendChild(c.CreateNewParagraph("CARGAS DE VIENTO", ParagraphTypes.Heading2));
+            body.AppendChild(c.CreateNewParagraph("Se considera las cargas de vientos sobre templas, equipos y estructuras en dirección X y Y. La velocidad del viento se toma de la NSR-10 [2] y el cálculo de estas fuerzas se realiza bajo la metodología del manual ASCE-74 “Guidelines for Electrical Transmission Line Structural Loading”, referencia [3]. La fuerza del viento sobre la estructura debida a la presión del viento sobre los conductores se calcula como:", ParagraphTypes.Normal));
             #endregion
 
             body.AppendChild(pSection1);
